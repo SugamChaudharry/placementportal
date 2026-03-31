@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { authService } from "@/lib/services/auth.service";
-import AuthPage from "@/components/pages/AuthPage";
 import StudentDashboard from "@/components/pages/StudentDashboard";
 import JobsPage from "@/components/pages/JobsPage";
 import ApplicationsPage from "@/components/pages/ApplicationsPage";
@@ -17,9 +17,6 @@ import MockInterviewPage from "@/components/pages/MockInterviewPage";
 import NetworkPage from "@/components/pages/NetworkPage";
 import NotificationsPage from "@/components/pages/NotificationsPage";
 import SettingsPage from "@/components/pages/SettingsPage";
-import OnboardingPage from "@/components/pages/OnboardingPage";
-import RecruiterOnboardingPage from "@/components/pages/RecruiterOnboardingPage";
-import RoleSelectionPage from "@/components/pages/RoleSelectionPage";
 
 // Recruiter pages
 import RecruiterDashboard from "@/components/pages/recruiter/RecruiterDashboard";
@@ -65,14 +62,12 @@ const GlobalStyles = () => (
 );
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
   const [role, setRole] = useState("student");
   const [page, setPage] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
-  const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
-  const [onboarding, setOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   // Restore auth state on mount
   useEffect(() => {
@@ -82,22 +77,29 @@ export default function App() {
         try {
           const user = await authService.getMe();
           setRole(user.role);
-          setLoggedIn(true);
-          // Check if onboarding is needed
+          // Check if onboarding is needed - redirect to appropriate onboarding
           if (user.role === "student" && (!user.student || (user.student as any).profileComplete < 100)) {
-            setOnboarding(true);
+            router.push("/onboarding/student");
+            return;
           } else if (user.role === "recruiter" && (!user.recruiter || !(user.recruiter as any).companyId)) {
-            setOnboarding(true);
+            router.push("/onboarding/recruiter");
+            return;
           }
         } catch (err) {
-          // Token invalid or expired, clear it
+          // Token invalid or expired, redirect to login
           localStorage.removeItem("token");
+          router.push("/auth/login");
+          return;
         }
+      } else {
+        // No token, redirect to login
+        router.push("/auth/login");
+        return;
       }
       setIsLoading(false);
     };
     restoreSession();
-  }, []);
+  }, [router]);
 
   if (isLoading) {
     return (
@@ -106,57 +108,6 @@ export default function App() {
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
         </div>
-      </>
-    );
-  }
-
-  const handleLogin = ({ role, needsOnboarding }: { role: string; needsOnboarding?: boolean }) => {
-    if (role === "onboarding") {
-      // User logged in with Google but needs to select a role
-      setNeedsRoleSelection(true);
-      setLoggedIn(true);
-      return;
-    }
-    setRole(role);
-    setPage(role === "student" ? "dashboard" : role === "recruiter" ? "rec-dashboard" : "admin-dashboard");
-    setLoggedIn(true);
-    setNeedsRoleSelection(false);
-    setOnboarding(needsOnboarding ?? false);
-  };
-
-  if (!loggedIn) {
-    return (
-      <>
-        <GlobalStyles />
-        <AuthPage onLogin={handleLogin} />
-      </>
-    );
-  }
-
-  if (needsRoleSelection) {
-    return (
-      <>
-        <GlobalStyles />
-        <RoleSelectionPage onComplete={(selectedRole) => {
-          setRole(selectedRole);
-          setNeedsRoleSelection(false);
-          setPage(selectedRole === "student" ? "dashboard" : selectedRole === "recruiter" ? "rec-dashboard" : "admin-dashboard");
-          // Trigger onboarding for both students and recruiters after role selection
-          setOnboarding(selectedRole === "student" || selectedRole === "recruiter");
-        }} />
-      </>
-    );
-  }
-
-  if (onboarding) {
-    return (
-      <>
-        <GlobalStyles />
-        {role === "recruiter" ? (
-          <RecruiterOnboardingPage onDone={() => setOnboarding(false)} />
-        ) : (
-          <OnboardingPage onDone={() => setOnboarding(false)} />
-        )}
       </>
     );
   }
