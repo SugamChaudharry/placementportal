@@ -1,6 +1,6 @@
 export function GlobalStyles() {
   return (
-    <style>{`
+    <style dangerouslySetInnerHTML={{ __html: `
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
     .placement-portal-root *,.placement-portal-root *::before,.placement-portal-root *::after{box-sizing:border-box;}
     .placement-portal-root{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;}
@@ -17,6 +17,6 @@ export function GlobalStyles() {
     .placement-portal-root .sb{background:linear-gradient(160deg,#0f172a 0%,#1a1150 100%);}
     .placement-portal-root .code{font-family:'JetBrains Mono',monospace;}
     .placement-portal-root input,.placement-portal-root textarea,.placement-portal-root select{font-family:'Plus Jakarta Sans',sans-serif;}
-  `}</style>
+  ` }} />
   );
 }

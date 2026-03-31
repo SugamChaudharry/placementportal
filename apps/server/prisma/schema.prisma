@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ─── Core ────────────────────────────────────────────────────────────────────
@@ -26,7 +25,12 @@ model User {
   @@map("users")
 }
 
-enum Role { student recruiter admin }
+enum Role {
+  student
+  recruiter
+  admin
+}
+
 
 // ─── Student ─────────────────────────────────────────────────────────────────
 model Student {
@@ -57,16 +61,26 @@ model Student {
 
 // ─── Recruiter ────────────────────────────────────────────────────────────────
 model Recruiter {
-  id          String  @id @default(cuid())
-  userId      String  @unique
-  companyId   String?
-  designation String?
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  companyId          String?
+  designation        String?
+  verificationStatus VerificationStatus @default(PENDING)
+  submittedAt        DateTime           @default(now())
+  verifiedAt         DateTime?
+  adminNotes         String?
 
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   company     Company? @relation(fields: [companyId], references: [id])
   jobs        Job[]
 
   @@map("recruiters")
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 // ─── Company ─────────────────────────────────────────────────────────────────
@@ -114,8 +128,18 @@ model Job {
   @@map("jobs")
 }
 
-enum JobType   { FULL_TIME INTERNSHIP PPO }
-enum JobStatus { OPEN CLOSED DRAFT }
+enum JobType {
+  FULL_TIME
+  INTERNSHIP
+  PPO
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  DRAFT
+}
+
 
 // ─── Application ──────────────────────────────────────────────────────────────
 model Application {
@@ -135,9 +159,16 @@ model Application {
 }
 
 enum AppStatus {
-  APPLIED SHORTLISTED TEST_SCHEDULED TEST_COMPLETED
-  INTERVIEW_SCHEDULED INTERVIEW_COMPLETED OFFERED REJECTED
+  APPLIED
+  SHORTLISTED
+  TEST_SCHEDULED
+  TEST_COMPLETED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  OFFERED
+  REJECTED
 }
+
 
 // ─── Coding Test ──────────────────────────────────────────────────────────────
 model CodingTest {
@@ -159,7 +190,13 @@ model CodingTest {
   @@map("coding_tests")
 }
 
-enum TestStatus { DRAFT PUBLISHED ACTIVE ENDED }
+enum TestStatus {
+  DRAFT
+  PUBLISHED
+  ACTIVE
+  ENDED
+}
+
 
 model TestQuestion {
   id          String   @id @default(cuid())
@@ -177,7 +214,12 @@ model TestQuestion {
   @@map("test_questions")
 }
 
-enum Difficulty { EASY MEDIUM HARD }
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
 
 model TestSubmission {
   id          String   @id @default(cuid())
@@ -206,7 +248,12 @@ model ChatRoom {
   @@map("chat_rooms")
 }
 
-enum RoomType { GROUP DM ANNOUNCEMENT }
+enum RoomType {
+  GROUP
+  DM
+  ANNOUNCEMENT
+}
+
 
 model Message {
   id        String      @id @default(cuid())
@@ -222,7 +269,12 @@ model Message {
   @@map("messages")
 }
 
-enum MessageType { TEXT FILE IMAGE }
+enum MessageType {
+  TEXT
+  FILE
+  IMAGE
+}
+
 
 // ─── Meeting ──────────────────────────────────────────────────────────────────
 model Meeting {
@@ -240,8 +292,19 @@ model Meeting {
   @@map("meetings")
 }
 
-enum MeetingType   { TECHNICAL HR GROUP_DISCUSSION }
-enum MeetingStatus { SCHEDULED LIVE COMPLETED CANCELLED }
+enum MeetingType {
+  TECHNICAL
+  HR
+  GROUP_DISCUSSION
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
 
 // ─── Notification ─────────────────────────────────────────────────────────────
 model Notification {
@@ -259,4 +322,10 @@ model Notification {
   @@map("notifications")
 }
 
-enum NotifType { SUCCESS INFO WARNING ERROR }
+enum NotifType {
+  SUCCESS
+  INFO
+  WARNING
+  ERROR
+}
+

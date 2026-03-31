@@ -17,6 +17,8 @@ import NetworkPage from "@/components/pages/NetworkPage";
 import NotificationsPage from "@/components/pages/NotificationsPage";
 import SettingsPage from "@/components/pages/SettingsPage";
 import OnboardingPage from "@/components/pages/OnboardingPage";
+import RecruiterOnboardingPage from "@/components/pages/RecruiterOnboardingPage";
+import RoleSelectionPage from "@/components/pages/RoleSelectionPage";
 
 // Recruiter pages
 import RecruiterDashboard from "@/components/pages/recruiter/RecruiterDashboard";
@@ -41,7 +43,7 @@ import { TopNav } from "@/components/TopNav";
 
 // Global Styles Component
 const GlobalStyles = () => (
-  <style>{`
+  <style dangerouslySetInnerHTML={{ __html: `
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body,#root{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#f8fafc;}
@@ -58,7 +60,7 @@ const GlobalStyles = () => (
     .sb{background:linear-gradient(160deg,#0f172a 0%,#1a1150 100%);}
     .code{font-family:'JetBrains Mono',monospace;}
     input,textarea,select{font-family:'Plus Jakarta Sans',sans-serif;}
-  `}</style>
+  ` }} />
 );
 
 export default function App() {
@@ -67,12 +69,20 @@ export default function App() {
   const [page, setPage] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
+  const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
   const [onboarding, setOnboarding] = useState(false);
 
   const handleLogin = (r: string) => {
+    if (r === "onboarding") {
+      // User logged in with Google but needs to select a role
+      setNeedsRoleSelection(true);
+      setLoggedIn(true);
+      return;
+    }
     setRole(r);
     setPage(r === "student" ? "dashboard" : r === "recruiter" ? "rec-dashboard" : "admin-dashboard");
     setLoggedIn(true);
+    setNeedsRoleSelection(false);
     setOnboarding(r === "student");
   };
 
@@ -85,11 +95,30 @@ export default function App() {
     );
   }
 
+  if (needsRoleSelection) {
+    return (
+      <>
+        <GlobalStyles />
+        <RoleSelectionPage onComplete={(selectedRole) => {
+          setRole(selectedRole);
+          setNeedsRoleSelection(false);
+          setPage(selectedRole === "student" ? "dashboard" : selectedRole === "recruiter" ? "rec-dashboard" : "admin-dashboard");
+          // Trigger onboarding for both students and recruiters
+          setOnboarding(selectedRole === "student" || selectedRole === "recruiter");
+        }} />
+      </>
+    );
+  }
+
   if (onboarding) {
     return (
       <>
         <GlobalStyles />
-        <OnboardingPage onDone={() => setOnboarding(false)} />
+        {role === "recruiter" ? (
+          <RecruiterOnboardingPage onDone={() => setOnboarding(false)} />
+        ) : (
+          <OnboardingPage onDone={() => setOnboarding(false)} />
+        )}
       </>
     );
   }
