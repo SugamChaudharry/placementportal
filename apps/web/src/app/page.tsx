@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { authService } from "@/lib/services/auth.service";
 import AuthPage from "@/components/pages/AuthPage";
 import StudentDashboard from "@/components/pages/StudentDashboard";
 import JobsPage from "@/components/pages/JobsPage";
@@ -71,19 +72,56 @@ export default function App() {
   const [showNotifs, setShowNotifs] = useState(false);
   const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
   const [onboarding, setOnboarding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleLogin = (r: string) => {
-    if (r === "onboarding") {
+  // Restore auth state on mount
+  useEffect(() => {
+    const restoreSession = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const user = await authService.getMe();
+          setRole(user.role);
+          setLoggedIn(true);
+          // Check if onboarding is needed
+          if (user.role === "student" && (!user.student || (user.student as any).profileComplete < 100)) {
+            setOnboarding(true);
+          } else if (user.role === "recruiter" && (!user.recruiter || !(user.recruiter as any).companyId)) {
+            setOnboarding(true);
+          }
+        } catch (err) {
+          // Token invalid or expired, clear it
+          localStorage.removeItem("token");
+        }
+      }
+      setIsLoading(false);
+    };
+    restoreSession();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <>
+        <GlobalStyles />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        </div>
+      </>
+    );
+  }
+
+  const handleLogin = ({ role, needsOnboarding }: { role: string; needsOnboarding?: boolean }) => {
+    if (role === "onboarding") {
       // User logged in with Google but needs to select a role
       setNeedsRoleSelection(true);
       setLoggedIn(true);
       return;
     }
-    setRole(r);
-    setPage(r === "student" ? "dashboard" : r === "recruiter" ? "rec-dashboard" : "admin-dashboard");
+    setRole(role);
+    setPage(role === "student" ? "dashboard" : role === "recruiter" ? "rec-dashboard" : "admin-dashboard");
     setLoggedIn(true);
     setNeedsRoleSelection(false);
-    setOnboarding(r === "student");
+    setOnboarding(needsOnboarding ?? false);
   };
 
   if (!loggedIn) {
@@ -103,7 +141,7 @@ export default function App() {
           setRole(selectedRole);
           setNeedsRoleSelection(false);
           setPage(selectedRole === "student" ? "dashboard" : selectedRole === "recruiter" ? "rec-dashboard" : "admin-dashboard");
-          // Trigger onboarding for both students and recruiters
+          // Trigger onboarding for both students and recruiters after role selection
           setOnboarding(selectedRole === "student" || selectedRole === "recruiter");
         }} />
       </>

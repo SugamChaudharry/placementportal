@@ -12,6 +12,7 @@ export class UsersService {
       select: {
         id: true,
         email: true,
+        username: true,
         name: true,
         role: true,
         avatar: true,
@@ -59,7 +60,6 @@ export class UsersService {
               degree: dto.degree,
               cgpa: dto.cgpa,
               graduationYear: dto.graduationYear,
-              rollNumber: dto.rollNumber,
               skills: dto.skills || [],
               backlogs: dto.backlogs,
               profileComplete,
@@ -74,7 +74,6 @@ export class UsersService {
               degree: dto.degree,
               cgpa: dto.cgpa,
               graduationYear: dto.graduationYear,
-              rollNumber: dto.rollNumber,
               skills: dto.skills,
               backlogs: dto.backlogs,
               profileComplete,
@@ -97,10 +96,21 @@ export class UsersService {
   async completeOnboarding(userId: string, dto: OnboardingDto) {
     const profileComplete = 100;
 
+    // Check for username collision if username is being updated
+    if (dto.username) {
+      const existing = await prisma.user.findFirst({
+        where: { username: dto.username, NOT: { id: userId } }
+      });
+      if (existing) {
+        throw { statusCode: 409, message: "Username already taken" };
+      }
+    }
+
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         name: dto.personal.name,
+        username: dto.username,
         student: {
           upsert: {
             create: {
@@ -113,7 +123,6 @@ export class UsersService {
               degree: dto.academic.degree,
               cgpa: dto.academic.cgpa,
               graduationYear: dto.academic.graduationYear,
-              rollNumber: dto.academic.rollNumber,
               backlogs: dto.academic.backlogs,
               skills: dto.skills.technical,
               resumeUrl: dto.resume?.url,
@@ -129,7 +138,6 @@ export class UsersService {
               degree: dto.academic.degree,
               cgpa: dto.academic.cgpa,
               graduationYear: dto.academic.graduationYear,
-              rollNumber: dto.academic.rollNumber,
               backlogs: dto.academic.backlogs,
               skills: dto.skills.technical,
               resumeUrl: dto.resume?.url,
@@ -146,6 +154,16 @@ export class UsersService {
 
   // Complete recruiter onboarding (creates company and recruiter profile with PENDING status)
   async completeRecruiterOnboarding(userId: string, dto: RecruiterOnboardingDto) {
+    // Check for username collision if username is being updated
+    if (dto.username) {
+      const existing = await prisma.user.findFirst({
+        where: { username: dto.username, NOT: { id: userId } }
+      });
+      if (existing) {
+        throw { statusCode: 409, message: "Username already taken" };
+      }
+    }
+
     // First, create or find the company
     let companyId: string | undefined;
 
@@ -171,21 +189,22 @@ export class UsersService {
       companyId = company.id;
     }
 
-    // Update user name and create recruiter profile
+    // Update user name and username, create recruiter profile
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         name: dto.personal.name,
+        username: dto.username,
         recruiter: {
           upsert: {
             create: {
-              companyId,
+              ...(companyId ? { company: { connect: { id: companyId } } } : {}),
               designation: dto.designation,
               verificationStatus: "PENDING",
               submittedAt: new Date(),
             },
             update: {
-              companyId,
+              ...(companyId ? { company: { connect: { id: companyId } } } : {}),
               designation: dto.designation,
             },
           },
@@ -291,7 +310,6 @@ export class UsersService {
     if (dto.branch) score += 10;
     if (dto.cgpa) score += 10;
     if (dto.graduationYear) score += 10;
-    if (dto.rollNumber) score += 10;
     if (dto.skills && dto.skills.length > 0) score += 15;
     return Math.min(100, score);
   }

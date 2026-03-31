@@ -52,7 +52,6 @@ export class RecruiterService {
       studentId: app.studentId,
       name: app.student.user.name,
       email: app.student.user.email,
-      rollNumber: app.student.rollNumber,
       branch: app.student.branch,
       cgpa: app.student.cgpa,
       skills: app.student.skills,

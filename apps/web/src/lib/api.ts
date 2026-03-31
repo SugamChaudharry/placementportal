@@ -20,7 +20,7 @@ api.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401 && typeof window !== "undefined") {
       localStorage.removeItem("token");
-      window.location.href = "/auth/login";
+      window.location.href = "/";
     }
     return Promise.reject(err);
   }
