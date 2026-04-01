@@ -47,7 +47,7 @@ export default function StudentOnboardingPage() {
     name: "", phone: "", linkedin: "", bio: "", username: "",
     college: "", degree: "", cgpa: "", gradYear: "",
     branch: "",
-    skills: "", preferences: ""
+    skills: "", preferences: "",
   });
 
   // Fetch user profile to get auto-generated username
@@ -55,7 +55,7 @@ export default function StudentOnboardingPage() {
     queryKey: ["me", token],
     queryFn: async () => {
       const response = await api.get("/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     },
@@ -67,7 +67,7 @@ export default function StudentOnboardingPage() {
   // Set initial form data from profile
   useEffect(() => {
     if (userProfile) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         name: userProfile.name || "",
         username: userProfile.username || "",
@@ -78,8 +78,8 @@ export default function StudentOnboardingPage() {
   // Validate token on mount - redirect to login if invalid
   useEffect(() => {
     const validateToken = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
+      const storedToken = localStorage.getItem("token");
+      if (!storedToken) {
         router.push("/auth/login");
         return;
       }
@@ -211,17 +211,22 @@ export default function StudentOnboardingPage() {
         },
         preferences: {
           jobTypes: ["FULL_TIME", "INTERNSHIP"],
-          preferredLocations: formData.preferences.split(",").map(s => s.trim()).filter(Boolean),
+          preferredLocations: formData.preferences
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
         },
       };
       return await userService.completeOnboarding(payload);
     },
     onSuccess: () => {
-      // Redirect to dashboard after onboarding complete
       router.push("/");
     },
     onError: (err: any) => {
-      const message = err.response?.data?.message || err.message || "Failed to save profile. Please try again.";
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to save profile. Please try again.";
       if (message.toLowerCase().includes("username")) {
         setUsernameError(message);
         setStep(1);
@@ -246,25 +251,48 @@ export default function StudentOnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "linear-gradient(180deg,#eef2ff,#f8fafc)" }}>
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: "linear-gradient(180deg,#eef2ff,#f8fafc)" }}
+    >
+      {/* ── Step indicator ── */}
       <div className="px-6 py-4 border-b border-indigo-100 bg-white/80 backdrop-blur">
         <div className="max-w-2xl mx-auto flex items-center gap-2">
           {labels.map((l, i) => (
             <div key={i} className="flex-1 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-600 transition-colors"
-                style={{ background: step > i ? P : step === i ? "#eef2ff" : "#e5e7eb", color: step > i ? "#fff" : step === i ? P : "#9ca3af", fontWeight: 600 }}>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs transition-colors"
+                style={{
+                  background: step > i ? P : step === i + 1 ? "#eef2ff" : "#e5e7eb",
+                  color: step > i ? "#fff" : step === i + 1 ? P : "#9ca3af",
+                  fontWeight: 600,
+                }}
+              >
                 {step > i ? <Check size={14} className="text-white" /> : i + 1}
               </div>
-              {i < labels.length - 1 && <div className="flex-1 h-0.5 rounded transition-colors" style={{ background: step > i ? P : "#e5e7eb" }} />}
+              {i < labels.length - 1 && (
+                <div
+                  className="flex-1 h-0.5 rounded transition-colors"
+                  style={{ background: step > i ? P : "#e5e7eb" }}
+                />
+              )}
             </div>
           ))}
         </div>
-        <p className="text-center text-xs text-gray-500 mt-2">Step {step} of {labels.length} — {labels[step - 1]}</p>
+        <p className="text-center text-xs text-gray-500 mt-2">
+          Step {step} of {labels.length} — {labels[step - 1]}
+        </p>
       </div>
+
+      {/* ── Form card ── */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <Card className="w-full max-w-2xl p-8 su">
-          <h2 className="text-xl font-700 text-gray-900 mb-4" style={{ fontWeight: 700 }}>Complete your profile</h2>
-          <p className="text-sm text-gray-600 mb-6">This is a condensed onboarding flow matching the spec: photo, bio, academics, skills, resume upload, and preferences.</p>
+        <Card className="w-full max-w-2xl p-8">
+          <h2 className="text-xl text-gray-900 mb-4" style={{ fontWeight: 700 }}>
+            Complete your profile
+          </h2>
+          <p className="text-sm text-gray-600 mb-6">
+            Fill in your personal details, academics, skills, resume, and preferences.
+          </p>
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -272,9 +300,12 @@ export default function StudentOnboardingPage() {
             </div>
           )}
 
+          {/* ── Step 1 · Personal ── */}
           {step === 1 && (
             <div className="space-y-4">
               <p className="text-xs text-gray-500">* Required fields</p>
+
+              {/* Username */}
               <div>
                 <label className="text-sm font-medium text-gray-700">Username *</label>
                 <div className="relative">
@@ -284,60 +315,95 @@ export default function StudentOnboardingPage() {
                   <Input
                     placeholder="Choose a username"
                     value={formData.username}
-                    onChange={e => updateForm("username", e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
-                    className={`pl-10 ${
-                      validationErrors.username ? "border-red-500" : ""
-                    }`}
+                    onChange={(e) =>
+                      updateForm(
+                        "username",
+                        e.target.value.toLowerCase().replace(/[^a-z0-9]/g, "")
+                      )
+                    }
+                    className={`pl-10 ${validationErrors.username ? "border-red-500" : ""}`}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Auto-generated. You can change it to a unique name.</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Auto-generated. You can change it to a unique name.
+                </p>
                 {(usernameError || validationErrors.username) && (
-                  <p className="text-xs text-red-500 mt-1">{usernameError || validationErrors.username}</p>
+                  <p className="text-xs text-red-500 mt-1">
+                    {usernameError || validationErrors.username}
+                  </p>
                 )}
               </div>
+
+              {/* Full name */}
               <div>
                 <label className="text-sm font-medium text-gray-700">Full name *</label>
                 <Input
                   placeholder="Enter your full name"
                   value={formData.name}
-                  onChange={e => updateForm("name", e.target.value)}
+                  onChange={(e) => updateForm("name", e.target.value)}
                   className={validationErrors.name ? "border-red-500" : ""}
                 />
                 {validationErrors.name && (
                   <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>
                 )}
               </div>
+
+              {/* Phone — FIX: closed this div before LinkedIn */}
               <div>
                 <label className="text-sm font-medium text-gray-700">Phone number *</label>
                 <Input
                   placeholder="Enter your phone number"
                   value={formData.phone}
-                  onChange={e => updateForm("phone", e.target.value)}
+                  onChange={(e) => updateForm("phone", e.target.value)}
                   className={validationErrors.phone ? "border-red-500" : ""}
                 />
                 {validationErrors.phone && (
                   <p className="text-xs text-red-500 mt-1">{validationErrors.phone}</p>
                 )}
-              <div>
-                <label className="text-sm font-medium text-gray-700">LinkedIn Profile URL <span className="text-gray-400 font-normal">(Optional)</span></label>
-                <Input placeholder="https://linkedin.com/in/yourprofile" value={formData.linkedin} onChange={e => updateForm("linkedin", e.target.value)} />
               </div>
+
+              {/* LinkedIn */}
               <div>
-                <label className="text-sm font-medium text-gray-700">Short bio <span className="text-gray-400 font-normal">(Optional)</span></label>
-                <textarea className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm min-h-[80px] focus:ring-1 focus:ring-indigo-500 outline-none" placeholder="Tell us about yourself (max 300 chars)" value={formData.bio} onChange={e => updateForm("bio", e.target.value)} />
+                <label className="text-sm font-medium text-gray-700">
+                  LinkedIn Profile URL{" "}
+                  <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <Input
+                  placeholder="https://linkedin.com/in/yourprofile"
+                  value={formData.linkedin}
+                  onChange={(e) => updateForm("linkedin", e.target.value)}
+                />
+              </div>
+
+              {/* Bio */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Short bio{" "}
+                  <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <textarea
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm min-h-[80px] focus:ring-1 focus:ring-indigo-500 outline-none"
+                  placeholder="Tell us about yourself (max 300 chars)"
+                  maxLength={300}
+                  value={formData.bio}
+                  onChange={(e) => updateForm("bio", e.target.value)}
+                />
               </div>
             </div>
           )}
 
+          {/* ── Step 2 · Academic ── */}
           {step === 2 && (
             <div className="space-y-4">
               <p className="text-xs text-gray-500">* Required fields</p>
               <div>
-                <label className="text-sm font-medium text-gray-700">University / College name *</label>
+                <label className="text-sm font-medium text-gray-700">
+                  University / College name *
+                </label>
                 <Input
                   placeholder="Enter your college name"
                   value={formData.college}
-                  onChange={e => updateForm("college", e.target.value)}
+                  onChange={(e) => updateForm("college", e.target.value)}
                   className={validationErrors.college ? "border-red-500" : ""}
                 />
                 {validationErrors.college && (
@@ -345,43 +411,82 @@ export default function StudentOnboardingPage() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Degree <span className="text-gray-400 font-normal">(Optional)</span></label>
-                <Input placeholder="e.g. B.Tech Computer Science" value={formData.degree} onChange={e => updateForm("degree", e.target.value)} />
+                <label className="text-sm font-medium text-gray-700">
+                  Degree <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <Input
+                  placeholder="e.g. B.Tech Computer Science"
+                  value={formData.degree}
+                  onChange={(e) => updateForm("degree", e.target.value)}
+                />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Branch <span className="text-gray-400 font-normal">(Optional)</span></label>
-                <Input placeholder="e.g. Computer Science" value={formData.branch} onChange={e => updateForm("branch", e.target.value)} />
+                <label className="text-sm font-medium text-gray-700">
+                  Branch <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <Input
+                  placeholder="e.g. Computer Science"
+                  value={formData.branch}
+                  onChange={(e) => updateForm("branch", e.target.value)}
+                />
               </div>
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="text-sm font-medium text-gray-700">CGPA <span className="text-gray-400 font-normal">(Optional)</span></label>
-                  <Input placeholder="e.g. 8.5" value={formData.cgpa} onChange={e => updateForm("cgpa", e.target.value)} />
+                  <label className="text-sm font-medium text-gray-700">
+                    CGPA <span className="text-gray-400 font-normal">(Optional)</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. 8.5"
+                    value={formData.cgpa}
+                    onChange={(e) => updateForm("cgpa", e.target.value)}
+                  />
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm font-medium text-gray-700">Graduation Year <span className="text-gray-400 font-normal">(Optional)</span></label>
-                  <Input placeholder="e.g. 2025" value={formData.gradYear} onChange={e => updateForm("gradYear", e.target.value)} />
+                  <label className="text-sm font-medium text-gray-700">
+                    Graduation Year{" "}
+                    <span className="text-gray-400 font-normal">(Optional)</span>
+                  </label>
+                  <Input
+                    placeholder="e.g. 2025"
+                    value={formData.gradYear}
+                    onChange={(e) => updateForm("gradYear", e.target.value)}
+                  />
                 </div>
               </div>
             </div>
           )}
 
+          {/* ── Step 3 · Skills ── */}
           {step === 3 && (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-gray-700">Skills <span className="text-gray-400 font-normal">(Optional)</span></p>
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">Can skip</span>
+                <p className="text-sm font-medium text-gray-700">
+                  Skills <span className="text-gray-400 font-normal">(Optional)</span>
+                </p>
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                  Can skip
+                </span>
               </div>
-              <p className="text-xs text-gray-500">List your primary technical skills (comma separated)</p>
-              <textarea className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm min-h-[120px] focus:ring-1 focus:ring-indigo-500 outline-none" placeholder="e.g. React, Node.js, Python, System Design" value={formData.skills} onChange={e => updateForm("skills", e.target.value)} />
+              <p className="text-xs text-gray-500">
+                List your primary technical skills (comma separated)
+              </p>
+              <textarea
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm min-h-[120px] focus:ring-1 focus:ring-indigo-500 outline-none"
+                placeholder="e.g. React, Node.js, Python, System Design"
+                value={formData.skills}
+                onChange={(e) => updateForm("skills", e.target.value)}
+              />
             </div>
           )}
 
+          {/* ── Step 4 · Resume ── */}
           {step === 4 && (
             <div className="space-y-4">
               <p className="text-sm font-medium text-gray-700">Resume Upload *</p>
               <p className="text-xs text-gray-500">
                 Upload your resume (PDF or Word document, max 5MB)
               </p>
+
               {!resumeUrl ? (
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl p-10 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -405,12 +510,10 @@ export default function StudentOnboardingPage() {
                   <p className="text-sm font-medium text-gray-800 mb-1">
                     Click to browse or drag and drop
                   </p>
-                  <p className="text-xs text-gray-500 mb-4">PDF or Word document up to 5MB</p>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    disabled={resumeUploading}
-                  >
+                  <p className="text-xs text-gray-500 mb-4">
+                    PDF or Word document up to 5MB
+                  </p>
+                  <Button variant="secondary" size="sm" disabled={resumeUploading}>
                     {resumeUploading ? "Uploading..." : "Choose File"}
                   </Button>
                 </div>
@@ -449,13 +552,25 @@ export default function StudentOnboardingPage() {
             </div>
           )}
 
+          {/* ── Step 5 · Preferences ── FIX: label/placeholder now match payload (preferredLocations) */}
           {step === 5 && (
             <div className="space-y-4">
-              <p className="text-sm font-medium text-gray-700">Job Preferences (Optional)</p>
-              <Input placeholder="e.g. Frontend Engineer, Product Manager" value={formData.preferences} onChange={(e) => updateForm("preferences", e.target.value)} />
+              <p className="text-sm font-medium text-gray-700">
+                Preferred Locations{" "}
+                <span className="text-gray-400 font-normal">(Optional)</span>
+              </p>
+              <p className="text-xs text-gray-500">
+                Enter cities or regions where you'd like to work (comma separated)
+              </p>
+              <Input
+                placeholder="e.g. Bangalore, Mumbai, Remote"
+                value={formData.preferences}
+                onChange={(e) => updateForm("preferences", e.target.value)}
+              />
             </div>
           )}
 
+          {/* ── Step 6 · Review ── */}
           {step === 6 && (
             <div className="space-y-6">
               <div className="border border-indigo-100 bg-indigo-50 rounded-lg p-4">
@@ -465,6 +580,7 @@ export default function StudentOnboardingPage() {
                 </p>
               </div>
 
+              {/* Personal */}
               <div className="border border-gray-100 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">Personal Info</h3>
                 <div className="space-y-2 text-sm">
@@ -497,6 +613,7 @@ export default function StudentOnboardingPage() {
                 </button>
               </div>
 
+              {/* Academic */}
               <div className="border border-gray-100 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">Academic Info</h3>
                 <div className="space-y-2 text-sm">
@@ -510,6 +627,24 @@ export default function StudentOnboardingPage() {
                       <span className="font-medium">{formData.degree}</span>
                     </div>
                   )}
+                  {formData.branch && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Branch:</span>
+                      <span className="font-medium">{formData.branch}</span>
+                    </div>
+                  )}
+                  {formData.cgpa && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">CGPA:</span>
+                      <span className="font-medium">{formData.cgpa}</span>
+                    </div>
+                  )}
+                  {formData.gradYear && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Grad Year:</span>
+                      <span className="font-medium">{formData.gradYear}</span>
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => setStep(2)}
@@ -519,20 +654,19 @@ export default function StudentOnboardingPage() {
                 </button>
               </div>
 
+              {/* Skills */}
               {formData.skills && (
                 <div className="border border-gray-100 rounded-lg p-4">
                   <h3 className="text-sm font-semibold text-gray-900 mb-2">Skills</h3>
                   <div className="flex flex-wrap gap-2">
-                    {formData.skills
-                      .split(",")
-                      .map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full"
-                        >
-                          {skill.trim()}
-                        </span>
-                      ))}
+                    {formData.skills.split(",").map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full"
+                      >
+                        {skill.trim()}
+                      </span>
+                    ))}
                   </div>
                   <button
                     onClick={() => setStep(3)}
@@ -543,6 +677,7 @@ export default function StudentOnboardingPage() {
                 </div>
               )}
 
+              {/* Resume */}
               <div className="border border-gray-100 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Resume</h3>
                 <p className="text-sm text-gray-600">{resumeFile?.name || "Resume uploaded"}</p>
@@ -554,15 +689,16 @@ export default function StudentOnboardingPage() {
                 </button>
               </div>
 
+              {/* Preferred Locations */}
               {formData.preferences && (
                 <div className="border border-gray-100 rounded-lg p-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Preferences</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                    Preferred Locations
+                  </h3>
                   <ul className="text-sm space-y-1">
-                    {formData.preferences
-                      .split(",")
-                      .map((pref, idx) => (
-                        <li key={idx}>• {pref.trim()}</li>
-                      ))}
+                    {formData.preferences.split(",").map((pref, idx) => (
+                      <li key={idx}>• {pref.trim()}</li>
+                    ))}
                   </ul>
                   <button
                     onClick={() => setStep(5)}
@@ -582,6 +718,7 @@ export default function StudentOnboardingPage() {
             </div>
           )}
 
+          {/* ── Navigation ── */}
           <div className="flex justify-between mt-8 pt-4 border-t border-gray-100">
             <Button
               variant="secondary"
