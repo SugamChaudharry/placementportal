@@ -20,6 +20,9 @@ const schema = z.object({
   DAILY_API_KEY: z.string().optional(),
   MEILISEARCH_URL: z.string().optional(),
   MEILISEARCH_MASTER_KEY: z.string().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_API_SECRET: z.string(),
 });
 const parsed = schema.safeParse(process.env);
 if (!parsed.success) { console.error("Bad env:", parsed.error.format()); process.exit(1); }

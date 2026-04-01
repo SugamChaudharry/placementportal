@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { ChevronRight, Check, Loader2, AtSign } from "lucide-react";
+import { ChevronRight, Check, Loader2, AtSign, Upload, X } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -19,15 +19,25 @@ export default function StudentOnboardingPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [usernameError, setUsernameError] = useState("");
-  const labels = ["Personal", "Academic", "Skills", "Resume", "Preferences"];
-  const requiredFields: Record<number, string[]> = {
-    1: ["name", "phone", "username"],
-    2: ["college"],
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState<string>("");
+
+  const labels = ["Personal", "Academic", "Skills", "Resume", "Preferences", "Review"];
+
+  const requiredFields: Record<number, { key: string; label: string }[]> = {
+    1: [
+      { key: "username", label: "Username" },
+      { key: "name", label: "Full Name" },
+      { key: "phone", label: "Phone Number" },
+    ],
+    2: [{ key: "college", label: "College" }],
     3: [],
-    4: [],
-    5: []
+    4: [{ key: "resume", label: "Resume" }],
+    5: [],
+    6: [],
   };
-  const isStepSkippable = (stepNum: number) => requiredFields[stepNum].length === 0;
 
   const authUser = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
@@ -85,9 +95,87 @@ export default function StudentOnboardingPage() {
   }, [router]);
 
   const updateForm = (key: string, value: string) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
+    setValidationErrors((prev) => ({ ...prev, [key]: "" }));
     if (key === "username") {
       setUsernameError("");
+    }
+  };
+
+  const validateStep = (stepNum: number): boolean => {
+    const errors: Record<string, string> = {};
+    const fields = requiredFields[stepNum];
+
+    for (const field of fields) {
+      if (field.key === "resume") {
+        if (!resumeUrl) {
+          errors[field.key] = `${field.label} is required`;
+        }
+      } else if (!formData[field.key as keyof typeof formData]?.trim()) {
+        errors[field.key] = `${field.label} is required`;
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return false;
+    }
+
+    setValidationErrors({});
+    return true;
+  };
+
+  const handleResumeUpload = async (file: File) => {
+    if (!file) return;
+
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        resume: "Only PDF and Word documents allowed",
+      }));
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        resume: "File size exceeds 5MB limit",
+      }));
+      return;
+    }
+
+    setResumeFile(file);
+    setResumeUploading(true);
+
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append("file", file);
+
+      const response = await api.post("/api/resume/upload", formDataObj, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setResumeUrl(response.data.url);
+      setValidationErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.resume;
+        return copy;
+      });
+    } catch (err: any) {
+      const message = err.response?.data?.message || "Failed to upload resume";
+      setValidationErrors((prev) => ({ ...prev, resume: message }));
+      setResumeFile(null);
+    } finally {
+      setResumeUploading(false);
     }
   };
 
@@ -111,12 +199,15 @@ export default function StudentOnboardingPage() {
           backlogs: 0,
         },
         skills: {
-          technical: formData.skills.split(",").map(s => s.trim()).filter(Boolean),
+          technical: formData.skills
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
           soft: [],
           languages: [],
         },
         resume: {
-          url: undefined,
+          url: resumeUrl,
         },
         preferences: {
           jobTypes: ["FULL_TIME", "INTERNSHIP"],
@@ -140,9 +231,18 @@ export default function StudentOnboardingPage() {
     },
   });
 
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setError("");
+      setStep((s) => s + 1);
+    }
+  };
+
   const handleFinish = () => {
-    setError("");
-    submitOnboarding();
+    if (validateStep(6)) {
+      setError("");
+      submitOnboarding();
+    }
   };
 
   return (
@@ -159,7 +259,7 @@ export default function StudentOnboardingPage() {
             </div>
           ))}
         </div>
-        <p className="text-center text-xs text-gray-500 mt-2">Step {step} of 5 — {labels[step - 1]}</p>
+        <p className="text-center text-xs text-gray-500 mt-2">Step {step} of {labels.length} — {labels[step - 1]}</p>
       </div>
       <div className="flex-1 flex items-center justify-center p-6">
         <Card className="w-full max-w-2xl p-8 su">
@@ -185,20 +285,39 @@ export default function StudentOnboardingPage() {
                     placeholder="Choose a username"
                     value={formData.username}
                     onChange={e => updateForm("username", e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
-                    className="pl-10"
+                    className={`pl-10 ${
+                      validationErrors.username ? "border-red-500" : ""
+                    }`}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Auto-generated. You can change it to a unique name.</p>
-                {usernameError && <p className="text-xs text-red-500 mt-1">{usernameError}</p>}
+                {(usernameError || validationErrors.username) && (
+                  <p className="text-xs text-red-500 mt-1">{usernameError || validationErrors.username}</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Full name *</label>
-                <Input placeholder="Enter your full name" value={formData.name} onChange={e => updateForm("name", e.target.value)} />
+                <Input
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={e => updateForm("name", e.target.value)}
+                  className={validationErrors.name ? "border-red-500" : ""}
+                />
+                {validationErrors.name && (
+                  <p className="text-xs text-red-500 mt-1">{validationErrors.name}</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Phone number *</label>
-                <Input placeholder="Enter your phone number" value={formData.phone} onChange={e => updateForm("phone", e.target.value)} />
-              </div>
+                <Input
+                  placeholder="Enter your phone number"
+                  value={formData.phone}
+                  onChange={e => updateForm("phone", e.target.value)}
+                  className={validationErrors.phone ? "border-red-500" : ""}
+                />
+                {validationErrors.phone && (
+                  <p className="text-xs text-red-500 mt-1">{validationErrors.phone}</p>
+                )}
               <div>
                 <label className="text-sm font-medium text-gray-700">LinkedIn Profile URL <span className="text-gray-400 font-normal">(Optional)</span></label>
                 <Input placeholder="https://linkedin.com/in/yourprofile" value={formData.linkedin} onChange={e => updateForm("linkedin", e.target.value)} />
@@ -215,7 +334,15 @@ export default function StudentOnboardingPage() {
               <p className="text-xs text-gray-500">* Required fields</p>
               <div>
                 <label className="text-sm font-medium text-gray-700">University / College name *</label>
-                <Input placeholder="Enter your college name" value={formData.college} onChange={e => updateForm("college", e.target.value)} />
+                <Input
+                  placeholder="Enter your college name"
+                  value={formData.college}
+                  onChange={e => updateForm("college", e.target.value)}
+                  className={validationErrors.college ? "border-red-500" : ""}
+                />
+                {validationErrors.college && (
+                  <p className="text-xs text-red-500 mt-1">{validationErrors.college}</p>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Degree <span className="text-gray-400 font-normal">(Optional)</span></label>
@@ -251,54 +378,230 @@ export default function StudentOnboardingPage() {
 
           {step === 4 && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-gray-700">Resume Upload <span className="text-gray-400 font-normal">(Optional)</span></p>
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">Can skip</span>
-              </div>
-               <div className="border-2 border-dashed border-gray-300 rounded-xl p-10 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+              <p className="text-sm font-medium text-gray-700">Resume Upload *</p>
+              <p className="text-xs text-gray-500">
+                Upload your resume (PDF or Word document, max 5MB)
+              </p>
+              {!resumeUrl ? (
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-10 flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.borderColor = P;
+                  }}
+                  onDragLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#d1d5db";
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleResumeUpload(file);
+                  }}
+                  onClick={() => document.getElementById("resume-input")?.click()}
+                >
                   <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
-                     <span className="text-indigo-600 font-bold text-lg">PDF</span>
+                    <Upload className="text-indigo-600" size={24} />
                   </div>
-                  <p className="text-sm font-medium text-gray-800 mb-1">Click to browse or drag and drop</p>
-                  <p className="text-xs text-gray-500 mb-4">PDF up to 5MB</p>
-                  <Button variant="secondary" size="sm" disabled>Choose File (Coming Soon)</Button>
-               </div>
+                  <p className="text-sm font-medium text-gray-800 mb-1">
+                    Click to browse or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500 mb-4">PDF or Word document up to 5MB</p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={resumeUploading}
+                  >
+                    {resumeUploading ? "Uploading..." : "Choose File"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="border border-green-200 bg-green-50 rounded-lg p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-green-800">{resumeFile?.name}</p>
+                    <p className="text-xs text-green-600">Successfully uploaded</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setResumeUrl("");
+                      setResumeFile(null);
+                    }}
+                    className="text-green-600 hover:text-green-800"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              )}
+
+              <input
+                id="resume-input"
+                type="file"
+                hidden
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleResumeUpload(file);
+                }}
+              />
+
+              {validationErrors.resume && (
+                <p className="text-xs text-red-500">{validationErrors.resume}</p>
+              )}
             </div>
           )}
 
           {step === 5 && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-gray-700">Job Preferences <span className="text-gray-400 font-normal">(Optional)</span></p>
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">Can skip</span>
+              <p className="text-sm font-medium text-gray-700">Job Preferences (Optional)</p>
+              <Input placeholder="e.g. Frontend Engineer, Product Manager" value={formData.preferences} onChange={(e) => updateForm("preferences", e.target.value)} />
+            </div>
+          )}
+
+          {step === 6 && (
+            <div className="space-y-6">
+              <div className="border border-indigo-100 bg-indigo-50 rounded-lg p-4">
+                <p className="text-sm font-medium text-indigo-900">Review Your Information</p>
+                <p className="text-xs text-indigo-700 mt-1">
+                  Please verify all information is correct before submitting.
+                </p>
               </div>
-              <p className="text-xs text-gray-500">Preferred Job Titles / Roles (comma separated)</p>
-              <Input placeholder="e.g. Frontend Engineer, Product Manager" value={formData.preferences} onChange={e => updateForm("preferences", e.target.value)} />
+
+              <div className="border border-gray-100 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Personal Info</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Username:</span>
+                    <span className="font-medium">{formData.username}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Name:</span>
+                    <span className="font-medium">{formData.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span className="font-medium">{formData.phone}</span>
+                  </div>
+                  {formData.linkedin && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">LinkedIn:</span>
+                      <span className="font-medium text-blue-600 text-xs truncate">
+                        {formData.linkedin}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setStep(1)}
+                  className="text-xs text-indigo-600 hover:text-indigo-700 mt-3 font-medium"
+                >
+                  Edit
+                </button>
+              </div>
+
+              <div className="border border-gray-100 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Academic Info</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">College:</span>
+                    <span className="font-medium">{formData.college}</span>
+                  </div>
+                  {formData.degree && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Degree:</span>
+                      <span className="font-medium">{formData.degree}</span>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setStep(2)}
+                  className="text-xs text-indigo-600 hover:text-indigo-700 mt-3 font-medium"
+                >
+                  Edit
+                </button>
+              </div>
+
+              {formData.skills && (
+                <div className="border border-gray-100 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.skills
+                      .split(",")
+                      .map((skill, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full"
+                        >
+                          {skill.trim()}
+                        </span>
+                      ))}
+                  </div>
+                  <button
+                    onClick={() => setStep(3)}
+                    className="text-xs text-indigo-600 hover:text-indigo-700 mt-3 font-medium"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
+
+              <div className="border border-gray-100 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Resume</h3>
+                <p className="text-sm text-gray-600">{resumeFile?.name || "Resume uploaded"}</p>
+                <button
+                  onClick={() => setStep(4)}
+                  className="text-xs text-indigo-600 hover:text-indigo-700 mt-3 font-medium"
+                >
+                  Change
+                </button>
+              </div>
+
+              {formData.preferences && (
+                <div className="border border-gray-100 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Preferences</h3>
+                  <ul className="text-sm space-y-1">
+                    {formData.preferences
+                      .split(",")
+                      .map((pref, idx) => (
+                        <li key={idx}>• {pref.trim()}</li>
+                      ))}
+                  </ul>
+                  <button
+                    onClick={() => setStep(5)}
+                    className="text-xs text-indigo-600 hover:text-indigo-700 mt-3 font-medium"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
 
               <div className="mt-6 p-4 border border-indigo-100 bg-indigo-50/50 rounded-lg">
-                <p className="text-sm text-indigo-700 font-medium">Almost there!</p>
+                <p className="text-sm text-indigo-700 font-medium">Ready to submit?</p>
                 <p className="text-xs text-indigo-600/80 mt-1">
-                  By clicking finish, your profile will be securely saved and accessible to Verified Recruiters matching your skills.
+                  Your profile will be securely saved and accessible to verified recruiters.
                 </p>
               </div>
             </div>
           )}
 
           <div className="flex justify-between mt-8 pt-4 border-t border-gray-100">
-            <Button variant="secondary" onClick={() => setStep(s => Math.max(1, s - 1))} disabled={step === 1 || isPending}>Back</Button>
+            <Button
+              variant="secondary"
+              onClick={() => setStep((s) => Math.max(1, s - 1))}
+              disabled={step === 1 || isPending}
+            >
+              Back
+            </Button>
             <div className="flex gap-2">
-              {isStepSkippable(step) && step < 5 && (
-                <Button variant="secondary" onClick={() => setStep(s => s + 1)}>Skip</Button>
-              )}
-              {step < 5 ? (
-                <Button onClick={() => setStep(s => s + 1)} icon={ChevronRight}>Next</Button>
+              {step < 6 ? (
+                <Button onClick={handleNext} icon={ChevronRight}>
+                  Next
+                </Button>
               ) : (
                 <Button
                   onClick={handleFinish}
                   icon={isPending ? Loader2 : Check}
                   disabled={isPending}
                 >
-                  {isPending ? "Saving..." : "Finish & go to dashboard"}
+                  {isPending ? "Submitting..." : "Submit"}
                 </Button>
               )}
             </div>

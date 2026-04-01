@@ -39,9 +39,9 @@ export const onboardingSchema = z.object({
     languages: z.array(z.string()).optional(),
   }),
   resume: z.object({
-    url: z.string().url().optional(),
+    url: z.string().url(),
     parsedData: z.record(z.any()).optional(),
-  }).optional(),
+  }),
   preferences: z.object({
     jobTypes: z.array(z.enum(["FULL_TIME", "INTERNSHIP", "PPO"])),
     preferredLocations: z.array(z.string()).optional(),
