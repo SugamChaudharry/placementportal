@@ -41,9 +41,16 @@ export interface AuthResponse {
   user: {
     id: string;
     email: string;
+    username?: string;
     name: string;
     role: string;
     avatar?: string;
+    student?: {
+      profileComplete?: number;
+    };
+    recruiter?: {
+      companyId?: string;
+    };
   };
   needsOnboarding?: boolean;
 }

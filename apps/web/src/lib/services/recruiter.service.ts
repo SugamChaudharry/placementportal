@@ -1,6 +1,10 @@
 import { api } from "../api";
 
 export const recruiterService = {
+  completeOnboarding: async (data: any) => {
+    return api.post("/api/users/recruiter/onboarding", data);
+  },
+
   getDashboardStats: async () => {
     return api.get("/api/recruiter/dashboard/stats");
   },

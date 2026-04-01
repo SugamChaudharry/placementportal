@@ -7,10 +7,52 @@ import { env } from "../../config/env";
 import { v4 as uuidv4 } from "uuid";
 import type { RegisterDto, LoginDto, GoogleDto, ResetPasswordDto } from "./auth.schema";
 
+function generateUsernameFromName(name: string): string {
+  // Clean name: lowercase, remove non-alphanumeric, replace spaces with empty
+  const base = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 12);
+  
+  // Add random 4-char suffix (alphanumeric)
+  const random = Math.random().toString(36).substring(2, 6);
+  return `${base}${random}`;
+}
+
+async function generateUniqueUsername(name: string): Promise<string> {
+  let username = generateUsernameFromName(name);
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  while (attempts < maxAttempts) {
+    const existing = await prisma.user.findUnique({ where: { username } });
+    if (!existing) {
+      return username;
+    }
+    // Collision - regenerate with new random suffix
+    username = generateUsernameFromName(name);
+    attempts++;
+  }
+
+  // Fallback: use timestamp if too many collisions
+  const timestamp = Date.now().toString(36).slice(-4);
+  return `${generateUsernameFromName(name)}${timestamp}`;
+}
+
 export class AuthService {
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto, app: FastifyInstance) {
     const exists = await prisma.user.findUnique({ where: { email: dto.email } });
     if (exists) throw { statusCode: 409, message: "Email already in use" };
+
+    // Auto-generate username if not provided
+    let username = dto.username;
+    if (!username) {
+      username = await generateUniqueUsername(dto.name);
+    } else {
+      // Check if username is already taken
+      const usernameExists = await prisma.user.findUnique({ where: { username } });
+      if (usernameExists) throw { statusCode: 409, message: "Username already in use" };
+    }
 
     // Check for super admin email - allow admin role only for this email
     const isSuperAdmin = env.SUPER_ADMIN_EMAIL && dto.email.toLowerCase() === env.SUPER_ADMIN_EMAIL.toLowerCase();
@@ -23,10 +65,15 @@ export class AuthService {
 
     const hash = await bcrypt.hash(dto.password, 12);
     const user = await prisma.user.create({
-      data: { name: dto.name, email: dto.email, passwordHash: hash, role },
-      select: { id: true, name: true, email: true, role: true }
+      data: { name: dto.name, username, email: dto.email, passwordHash: hash, role },
+      select: { id: true, name: true, username: true, email: true, role: true, avatar: true }
     });
-    return { user };
+
+    // Generate token for auto-login
+    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
+    await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
+
+    return { token, user, needsOnboarding: true };
   }
 
   async login(dto: LoginDto, app: FastifyInstance) {
@@ -36,7 +83,18 @@ export class AuthService {
     if (!valid) throw { statusCode: 401, message: "Invalid credentials" };
     const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
     await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
-    return { token, user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar } };
+
+    // Check if role-specific profile exists and is complete to determine if onboarding is needed
+    let needsOnboarding = false;
+    if (user.role === "student") {
+      const student = await prisma.student.findUnique({ where: { userId: user.id } });
+      needsOnboarding = !student || student.profileComplete < 100;
+    } else if (user.role === "recruiter") {
+      const recruiter = await prisma.recruiter.findUnique({ where: { userId: user.id }, include: { company: true } });
+      needsOnboarding = !recruiter || !recruiter.companyId;
+    }
+
+    return { token, user: { id: user.id, name: user.name, username: user.username, email: user.email, role: user.role, avatar: user.avatar }, needsOnboarding };
   }
 
   async google(dto: GoogleDto, app: FastifyInstance) {
@@ -55,10 +113,13 @@ export class AuthService {
         throw { statusCode: 403, message: "Admin registration is not allowed. Contact an existing admin." };
       }
 
+      const username = await generateUniqueUsername(dto.name);
+
       user = await prisma.user.create({
         data: {
           email: dto.email,
           name: dto.name,
+          username,
           avatar: dto.avatar,
           passwordHash: await bcrypt.hash(uuidv4(), 10),
           role
@@ -69,20 +130,20 @@ export class AuthService {
     const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
     await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
 
-    // Check if role-specific profile exists to determine if onboarding is needed
+    // Check if role-specific profile exists and is complete to determine if onboarding is needed
     let needsOnboarding = false;
     if (user.role === "student") {
       const student = await prisma.student.findUnique({ where: { userId: user.id } });
-      needsOnboarding = !student;
+      needsOnboarding = !student || student.profileComplete < 100;
     } else if (user.role === "recruiter") {
-      const recruiter = await prisma.recruiter.findUnique({ where: { userId: user.id } });
-      needsOnboarding = !recruiter;
+      const recruiter = await prisma.recruiter.findUnique({ where: { userId: user.id }, include: { company: true } });
+      needsOnboarding = !recruiter || !recruiter.companyId;
     }
 
     return {
       token,
-      user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar },
-      needsOnboarding: isNewUser && needsOnboarding
+      user: { id: user.id, email: user.email, username: user.username, name: user.name, role: user.role, avatar: user.avatar },
+      needsOnboarding
     };
   }
 
@@ -111,11 +172,11 @@ export class AuthService {
     const user = await prisma.user.update({ where: { id: userId }, data: { role } });
     const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
     await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
-    return { token, user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar } };
+    return { token, user: { id: user.id, email: user.email, username: user.username, name: user.name, role: user.role, avatar: user.avatar } };
   }
 
   async getMe(userId: string) {
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true, role: true, avatar: true, createdAt: true, student: true, recruiter: { include: { company: true } } } });
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, username: true, name: true, role: true, avatar: true, createdAt: true, student: true, recruiter: { include: { company: true } } } });
     if (!user) throw { statusCode: 404, message: "User not found" };
     return user;
   }

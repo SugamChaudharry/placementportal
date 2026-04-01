@@ -2,20 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { ChevronRight, Check, Loader2, AtSign } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { P } from "@/lib/constants";
 import { api } from "@/lib/api";
+import { authService } from "@/lib/services/auth.service";
 import { userService } from "@/lib/services/user.service";
 import { useAuthStore } from "@/store/auth.store";
+import { removeTokenCookie } from "@/lib/cookies";
 
-type OnboardingPageProps = {
-  onDone: () => void;
-};
+const P = "#4f46e5";
 
-export default function OnboardingPage({ onDone }: OnboardingPageProps) {
+export default function StudentOnboardingPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [usernameError, setUsernameError] = useState("");
@@ -28,9 +28,11 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
     5: []
   };
   const isStepSkippable = (stepNum: number) => requiredFields[stepNum].length === 0;
-  
+
   const authUser = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: "", phone: "", linkedin: "", bio: "", username: "",
     college: "", degree: "", cgpa: "", gradYear: "",
@@ -63,6 +65,25 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
     }
   }, [userProfile]);
 
+  // Validate token on mount - redirect to login if invalid
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/auth/login");
+        return;
+      }
+      try {
+        await authService.getMe();
+      } catch {
+        localStorage.removeItem("token");
+        removeTokenCookie();
+        router.push("/auth/login");
+      }
+    };
+    validateToken();
+  }, [router]);
+
   const updateForm = (key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
     if (key === "username") {
@@ -73,7 +94,6 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
   // Submit onboarding data to backend
   const { mutate: submitOnboarding, isPending } = useMutation({
     mutationFn: async () => {
-      // Transform form data to match API schema
       const payload = {
         username: formData.username,
         personal: {
@@ -106,13 +126,14 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
       return await userService.completeOnboarding(payload);
     },
     onSuccess: () => {
-      onDone();
+      // Redirect to dashboard after onboarding complete
+      router.push("/");
     },
     onError: (err: any) => {
       const message = err.response?.data?.message || err.message || "Failed to save profile. Please try again.";
       if (message.toLowerCase().includes("username")) {
         setUsernameError(message);
-        setStep(1); // Go back to step 1 to fix username
+        setStep(1);
       } else {
         setError(message);
       }
@@ -144,13 +165,13 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
         <Card className="w-full max-w-2xl p-8 su">
           <h2 className="text-xl font-700 text-gray-900 mb-4" style={{ fontWeight: 700 }}>Complete your profile</h2>
           <p className="text-sm text-gray-600 mb-6">This is a condensed onboarding flow matching the spec: photo, bio, academics, skills, resume upload, and preferences.</p>
-          
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
-          
+
           {step === 1 && (
             <div className="space-y-4">
               <p className="text-xs text-gray-500">* Required fields</p>
@@ -160,9 +181,9 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                     <AtSign size={16} />
                   </div>
-                  <Input 
-                    placeholder="Choose a username" 
-                    value={formData.username} 
+                  <Input
+                    placeholder="Choose a username"
+                    value={formData.username}
                     onChange={e => updateForm("username", e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
                     className="pl-10"
                   />
@@ -253,7 +274,7 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
               </div>
               <p className="text-xs text-gray-500">Preferred Job Titles / Roles (comma separated)</p>
               <Input placeholder="e.g. Frontend Engineer, Product Manager" value={formData.preferences} onChange={e => updateForm("preferences", e.target.value)} />
-              
+
               <div className="mt-6 p-4 border border-indigo-100 bg-indigo-50/50 rounded-lg">
                 <p className="text-sm text-indigo-700 font-medium">Almost there!</p>
                 <p className="text-xs text-indigo-600/80 mt-1">
@@ -272,8 +293,8 @@ export default function OnboardingPage({ onDone }: OnboardingPageProps) {
               {step < 5 ? (
                 <Button onClick={() => setStep(s => s + 1)} icon={ChevronRight}>Next</Button>
               ) : (
-                <Button 
-                  onClick={handleFinish} 
+                <Button
+                  onClick={handleFinish}
                   icon={isPending ? Loader2 : Check}
                   disabled={isPending}
                 >

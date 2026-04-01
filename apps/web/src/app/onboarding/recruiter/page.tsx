@@ -2,20 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { ChevronRight, Check, Building2, User, Briefcase, FileText, Loader2, AtSign } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { P } from "@/lib/constants";
 import { api } from "@/lib/api";
+import { authService } from "@/lib/services/auth.service";
 import { recruiterService } from "@/lib/services/recruiter.service";
 import { useAuthStore } from "@/store/auth.store";
+import { removeTokenCookie } from "@/lib/cookies";
 
-type RecruiterOnboardingPageProps = {
-  onDone: () => void;
-};
+const P = "#4f46e5";
 
-export default function RecruiterOnboardingPage({ onDone }: RecruiterOnboardingPageProps) {
+export default function RecruiterOnboardingPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [usernameError, setUsernameError] = useState("");
@@ -30,7 +30,8 @@ export default function RecruiterOnboardingPage({ onDone }: RecruiterOnboardingP
 
   const authUser = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
-  
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     // Personal
     name: "",
@@ -73,6 +74,25 @@ export default function RecruiterOnboardingPage({ onDone }: RecruiterOnboardingP
     }
   }, [userProfile]);
 
+  // Validate token on mount - redirect to login if invalid
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/auth/login");
+        return;
+      }
+      try {
+        await authService.getMe();
+      } catch {
+        localStorage.removeItem("token");
+        removeTokenCookie();
+        router.push("/auth/login");
+      }
+    };
+    validateToken();
+  }, [router]);
+
   const updateForm = (key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
     if (key === "username") {
@@ -83,7 +103,6 @@ export default function RecruiterOnboardingPage({ onDone }: RecruiterOnboardingP
   // Submit onboarding data to backend
   const { mutate: submitOnboarding, isPending } = useMutation({
     mutationFn: async () => {
-      // Transform form data to match API schema
       const payload = {
         username: formData.username,
         personal: {
@@ -104,13 +123,14 @@ export default function RecruiterOnboardingPage({ onDone }: RecruiterOnboardingP
       return await recruiterService.completeOnboarding(payload);
     },
     onSuccess: () => {
-      onDone();
+      // Redirect to dashboard after onboarding complete
+      router.push("/");
     },
     onError: (err: any) => {
       const message = err.response?.data?.message || err.message || "Failed to submit profile. Please try again.";
       if (message.toLowerCase().includes("username")) {
         setUsernameError(message);
-        setStep(1); // Go back to step 1 to fix username
+        setStep(1);
       } else {
         setError(message);
       }
@@ -163,9 +183,9 @@ export default function RecruiterOnboardingPage({ onDone }: RecruiterOnboardingP
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                     <AtSign size={16} />
                   </div>
-                  <Input 
-                    placeholder="Choose a username" 
-                    value={formData.username} 
+                  <Input
+                    placeholder="Choose a username"
+                    value={formData.username}
                     onChange={e => updateForm("username", e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
                     className="pl-10"
                   />
@@ -281,8 +301,8 @@ export default function RecruiterOnboardingPage({ onDone }: RecruiterOnboardingP
               {step < 4 ? (
                 <Button onClick={() => setStep(s => s + 1)} icon={ChevronRight}>Next</Button>
               ) : (
-                <Button 
-                  onClick={handleFinish} 
+                <Button
+                  onClick={handleFinish}
                   icon={isPending ? Loader2 : Check}
                   disabled={isPending}
                 >

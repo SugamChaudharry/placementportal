@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { UsersService } from "./users.service";
-import { updateProfileSchema, onboardingSchema } from "./users.schema";
+import { updateProfileSchema, onboardingSchema, recruiterOnboardingSchema } from "./users.schema";
 
 export async function userRoutes(app: FastifyInstance) {
   const svc = new UsersService();
@@ -28,6 +28,15 @@ export async function userRoutes(app: FastifyInstance) {
     schema: { body: onboardingSchema },
     handler: async (req) => {
       return await svc.completeOnboarding((req as any).user.id, req.body as any);
+    },
+  });
+
+  // Complete recruiter onboarding
+  app.post("/recruiter/onboarding", {
+    onRequest: [(app as any).authenticate],
+    schema: { body: recruiterOnboardingSchema },
+    handler: async (req) => {
+      return await svc.completeRecruiterOnboarding((req as any).user.id, req.body as any);
     },
   });
 

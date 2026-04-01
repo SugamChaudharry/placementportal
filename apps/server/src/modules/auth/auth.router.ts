@@ -16,7 +16,7 @@ export async function authRoutes(app: FastifyInstance) {
   app.post<{ Body: RegisterDto }>("/register", {
     schema: { body: registerSchema },
     handler: async (req, reply) => {
-      const result = await svc.register(req.body);
+      const result = await svc.register(req.body, app);
       reply.code(201).send(result);
     },
   });

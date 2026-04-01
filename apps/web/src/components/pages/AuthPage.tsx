@@ -7,13 +7,13 @@ import { useAuthStore } from "@/store/auth.store";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { GraduationCap, Mail, Lock, User, Building2, Check } from "lucide-react";
+import { GraduationCap, Mail, Lock, User, Check } from "lucide-react";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
 const P = "#4f46e5";
 
-export default function AuthPage({ onLogin }: { onLogin: (role: string) => void }) {
+export default function AuthPage({ onLogin }: { onLogin: (params: { role: string; needsOnboarding?: boolean }) => void }) {
   const [tab, setTab] = useState("login");
   const [selectedRole, setRole] = useState("student");
   const [showPass, setShowPass] = useState(false);
@@ -40,10 +40,12 @@ export default function AuthPage({ onLogin }: { onLogin: (role: string) => void 
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
-      onLogin(data.user.role);
+      // If user needs onboarding (no role-specific profile), redirect to onboarding
+      onLogin({ role: data.needsOnboarding ? "onboarding" : data.user.role, needsOnboarding: data.needsOnboarding });
     },
     onError: (err: any) => {
-      setError(err.message || "Login failed");
+      const message = err.response?.data?.message || err.message || "Login failed";
+      setError(message);
     },
   });
 
@@ -53,15 +55,17 @@ export default function AuthPage({ onLogin }: { onLogin: (role: string) => void 
         name,
         email,
         password: pass,
-        role: selectedRole as any,
+        role: "student", // Default to student, can be changed during onboarding
       });
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
-      onLogin(data.user.role);
+      // New users always need onboarding after registration
+      onLogin({ role: data.user.role, needsOnboarding: true });
     },
     onError: (err: any) => {
-      setError(err.message || "Registration failed");
+      const message = err.response?.data?.message || err.message || "Registration failed";
+      setError(message);
     },
   });
 
@@ -73,28 +77,20 @@ export default function AuthPage({ onLogin }: { onLogin: (role: string) => void 
         name: decoded.name,
         avatar: decoded.picture,
         googleId: decoded.sub,
-        role: tab === "register" ? (selectedRole as any) : undefined,
+        role: "student", // Default to student, can be changed during onboarding
       };
       return await authService.google(payload);
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
       // If user needs onboarding (no role-specific profile), redirect to onboarding
-      if (data.needsOnboarding) {
-        onLogin("onboarding");
-      } else {
-        onLogin(data.user.role);
-      }
+      onLogin({ role: data.needsOnboarding ? "onboarding" : data.user.role, needsOnboarding: data.needsOnboarding });
     },
     onError: (err: any) => {
-      setError(err.message || "Google Authentication failed");
+      const message = err.response?.data?.message || err.message || "Google Authentication failed";
+      setError(message);
     },
   });
-
-  const roles = [
-    { id: "student", icon: GraduationCap, title: "Student" },
-    { id: "recruiter", icon: Building2, title: "Recruiter" },
-  ];
 
   const strengthColors = ["#d1d5db", "#ef4444", "#f59e0b", "#10b981", "#059669"];
   const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
@@ -169,26 +165,6 @@ export default function AuthPage({ onLogin }: { onLogin: (role: string) => void 
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Role selection for registration */}
-                <div className="mb-4">
-                  <label className="text-sm font-medium text-gray-700 block mb-2">I am registering as a:</label>
-                  <div className="flex gap-2">
-                    {roles.map(r => {
-                      const Icon = r.icon;
-                      const active = selectedRole === r.id;
-                      return (
-                        <button key={r.id} onClick={() => setRole(r.id)}
-                          className="flex-1 flex flex-col items-center justify-center p-3 rounded-xl border transition-all"
-                          style={{ borderColor: active ? P : "#e5e7eb", background: active ? "rgba(79,70,229,.04)" : "#fff" }}>
-                          <Icon size={20} color={active ? P : "#6b7280"} className="mb-1" />
-                          <span className="text-xs font-medium" style={{ color: active ? P : "#6b7280" }}>{r.title}</span>
-                          {active && <div className="absolute top-2 right-2"><Check size={14} color={P} /></div>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 <div className="space-y-3">
                   <Input prefix={User} placeholder="Full name" value={name} onChange={e => setName(e.target.value)} />
                   <Input prefix={Mail} placeholder="Email address" type="email" value={email} onChange={e => setEmail(e.target.value)} />
@@ -218,7 +194,6 @@ export default function AuthPage({ onLogin }: { onLogin: (role: string) => void 
                 </div>
 
                 <div className="flex justify-center flex-col items-center">
-                  <p className="text-xs text-gray-500 mb-2">Google sign-up will select your chosen role above.</p>
                   {isGoogleLoading ? <p className="text-sm text-gray-500">Authenticating...</p> : 
                     <GoogleLogin 
                       text="signup_with"

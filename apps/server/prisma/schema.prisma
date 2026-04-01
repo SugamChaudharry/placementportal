@@ -10,6 +10,7 @@ datasource db {
 model User {
   id           String   @id @default(cuid())
   name         String
+  username     String?  @unique
   email        String   @unique
   passwordHash String
   role         Role     @default(student)
@@ -36,7 +37,6 @@ enum Role {
 model Student {
   id             String   @id @default(cuid())
   userId         String   @unique
-  rollNumber     String?  @unique
   college        String?
   branch         String?
   degree         String?
