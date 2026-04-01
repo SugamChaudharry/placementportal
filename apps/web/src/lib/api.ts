@@ -14,13 +14,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Redirect to login on 401
+// Redirect to login on 401 (except for auth endpoints to avoid redirect loops)
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      window.location.href = "/";
+      // Skip redirect for auth endpoints to let pages handle errors properly
+      const requestUrl = err.config?.url || "";
+      const isAuthEndpoint = 
+        requestUrl.includes("/auth/login") || 
+        requestUrl.includes("/auth/register") ||
+        requestUrl.includes("/auth/google") ||
+        requestUrl.includes("/auth/forgot-password") ||
+        requestUrl.includes("/auth/reset-password");
+      
+      if (!isAuthEndpoint) {
+        localStorage.removeItem("token");
+        window.location.href = "/";
+      }
     }
     return Promise.reject(err);
   }

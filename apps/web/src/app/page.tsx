@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/lib/services/auth.service";
+import { removeTokenCookie } from "@/lib/cookies";
 import StudentDashboard from "@/components/pages/StudentDashboard";
 import JobsPage from "@/components/pages/JobsPage";
 import ApplicationsPage from "@/components/pages/ApplicationsPage";
@@ -88,6 +89,7 @@ export default function App() {
         } catch (err) {
           // Token invalid or expired, redirect to login
           localStorage.removeItem("token");
+          removeTokenCookie(); // Also remove cookie
           router.push("/auth/login");
           return;
         }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authService, GoogleCredentials } from "@/lib/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
+import { setTokenCookie } from "@/lib/cookies";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -45,6 +46,7 @@ export default function RegisterPage() {
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
+      setTokenCookie(data.token); // Ensure cookie is set for middleware
       // New users always need onboarding
       router.push("/onboarding/student");
     },

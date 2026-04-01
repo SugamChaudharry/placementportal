@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authService, GoogleCredentials } from "@/lib/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
+import { setTokenCookie } from "@/lib/cookies";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -30,12 +31,11 @@ export default function LoginPage() {
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
+      setTokenCookie(data.token); // Ensure cookie is set for middleware
       // Redirect based on onboarding status
       if (data.needsOnboarding) {
         router.push("/onboarding/role");
-      } else {
-        router.push("/");
-      }
+      } 
     },
     onError: (err: any) => {
       const message = err.response?.data?.message || err.message || "Login failed";
@@ -57,6 +57,7 @@ export default function LoginPage() {
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
+      setTokenCookie(data.token); // Ensure cookie is set for middleware
       // Redirect based on onboarding status
       if (data.needsOnboarding) {
         router.push("/onboarding/role");
@@ -70,7 +71,7 @@ export default function LoginPage() {
     },
   });
 
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
   return (
     <GoogleOAuthProvider clientId={clientId}>

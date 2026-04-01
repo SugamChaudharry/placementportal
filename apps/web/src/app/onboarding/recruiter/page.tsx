@@ -8,8 +8,10 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { api } from "@/lib/api";
+import { authService } from "@/lib/services/auth.service";
 import { recruiterService } from "@/lib/services/recruiter.service";
 import { useAuthStore } from "@/store/auth.store";
+import { removeTokenCookie } from "@/lib/cookies";
 
 const P = "#4f46e5";
 
@@ -71,6 +73,25 @@ export default function RecruiterOnboardingPage() {
       }));
     }
   }, [userProfile]);
+
+  // Validate token on mount - redirect to login if invalid
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/auth/login");
+        return;
+      }
+      try {
+        await authService.getMe();
+      } catch {
+        localStorage.removeItem("token");
+        removeTokenCookie();
+        router.push("/auth/login");
+      }
+    };
+    validateToken();
+  }, [router]);
 
   const updateForm = (key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));

@@ -3,6 +3,7 @@
 import React from "react";
 import { LogOut, ChevronLeft, ChevronRight, GraduationCap } from "lucide-react";
 import { navStudent, navRecruiter, navAdmin, P } from "@/lib/constants";
+import { useAuthStore } from "@/store/auth.store";
 
 type SidebarProps = {
   role: string;
@@ -14,6 +15,7 @@ type SidebarProps = {
 };
 
 export function Sidebar({ role, setRole, page, setPage, collapsed, setCollapsed }: SidebarProps) {
+  const logout = useAuthStore((state) => state.logout);
   const nav = role === "recruiter" ? navRecruiter : role === "admin" ? navAdmin : navStudent;
   return (
     <div className="sb flex flex-col h-full transition-all duration-300" style={{ width: collapsed ? 64 : 240 }}>
@@ -84,7 +86,7 @@ export function Sidebar({ role, setRole, page, setPage, collapsed, setCollapsed 
       )}
 
       {/* Sign out */}
-      <button className="flex items-center gap-3 px-4 py-4 text-gray-500 hover:text-red-400 transition-colors border-t"
+      <button onClick={logout} className="flex items-center gap-3 px-4 py-4 text-gray-500 hover:text-red-400 transition-colors border-t"
         style={{ borderColor: "rgba(255,255,255,.08)", justifyContent: collapsed ? "center" : "flex-start" }}>
         <LogOut size={16} />
         {!collapsed && <span style={{ fontSize: 13 }}>Sign out</span>}
