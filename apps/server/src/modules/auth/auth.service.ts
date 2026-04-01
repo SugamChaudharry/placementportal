@@ -180,4 +180,9 @@ export class AuthService {
     if (!user) throw { statusCode: 404, message: "User not found" };
     return user;
   }
+
+  async logout(userId: string) {
+    await redis.del(redisKeys.session(userId));
+    return { message: "Logged out successfully" };
+  }
 }

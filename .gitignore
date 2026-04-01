@@ -3,5 +3,7 @@ node_modules
 dist
 .env
 .env.local
+.env.production
 .turbo
 *.tsbuildinfo
+apps/server/.env.production

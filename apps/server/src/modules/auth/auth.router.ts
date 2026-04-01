@@ -66,6 +66,16 @@ export async function authRoutes(app: FastifyInstance) {
     },
   });
 
+  // Logout (protected)
+  app.delete("/logout", {
+    onRequest: [async (req, reply) => app.authenticate(req, reply)],
+    handler: async (req, reply) => {
+      const user = req.user as { id: string };
+      await svc.logout(user.id);
+      reply.send({ message: "Logged out successfully" });
+    },
+  });
+
   // Update user role (protected, for onboarding)
   app.post<{ Body: { role: "student" | "recruiter" | "admin" } }>("/update-role", {
     onRequest: [async (req, reply) => app.authenticate(req, reply)],
