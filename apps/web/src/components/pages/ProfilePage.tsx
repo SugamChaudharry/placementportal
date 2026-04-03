@@ -197,7 +197,13 @@ export default function ProfilePage({ setPage, user: userProp }: ProfilePageProp
   const displayInstitution = user?.student?.college?.name || user?.recruiter?.company?.name || null;
   const displayGradYear = user?.student?.graduationYear || null;
   const displayCGPA = user?.student?.cgpa || null;
-  const skills = user?.student?.skills || {};
+  
+  // Handle skills as either array or object format
+  const rawSkills = user?.student?.skills || [];
+  const skills = Array.isArray(rawSkills) 
+    ? { technical: rawSkills, soft: [], languages: [] }
+    : rawSkills;
+  
   const experiences = user?.student?.experiences || [];
   const activities = user?.activities || [];
 

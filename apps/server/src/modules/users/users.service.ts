@@ -95,21 +95,17 @@ export class UsersService {
 
   // Complete onboarding (all 5 steps)
   async completeOnboarding(userId: string, dto: OnboardingDto) {
-    // Validate resume URL is provided and accessible
+    // Validate resume URL is provided
     if (!dto.resume?.url) {
       throw { statusCode: 400, message: "Resume URL is required" };
     }
 
-    try {
-      const response = await axios.head(dto.resume.url, { timeout: 5000 });
-      if (response.status !== 200) {
-        throw new Error("Resume URL not accessible");
-      }
-    } catch (error: any) {
-      throw {
-        statusCode: 400,
-        message: "Invalid resume URL or file not accessible",
-      };
+    // Basic URL format validation for Cloudinary URLs
+    const isValidCloudinaryUrl = dto.resume.url.startsWith("https://res.cloudinary.com/") ||
+                                   dto.resume.url.startsWith("http://res.cloudinary.com/");
+    
+    if (!isValidCloudinaryUrl) {
+      throw { statusCode: 400, message: "Invalid resume URL format" };
     }
 
     const profileComplete = 100;

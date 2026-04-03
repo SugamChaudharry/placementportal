@@ -63,8 +63,8 @@ function JobsPage({ setPage }: { setPage: (page: string) => void }) {
   });
 
   const jobs = jobsData?.data?.data || [];
-  const savedJobs = new Set((savedData?.data || []).map((j: Job) => j.id));
-  const appliedJobs = new Set((appliedData?.data || []).map((j: Job) => j.id));
+  const savedJobs = new Set((savedData?.data?.data || []).map((j: Job) => j.id));
+  const appliedJobs = new Set((appliedData?.data?.data || []).map((j: Job) => j.id));
 
   const filtered = jobs;
 

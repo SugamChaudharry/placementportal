@@ -6,7 +6,11 @@
     "allowImportingTsExtensions": false,
     "noEmit": false,
     "module": "CommonJS",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src/**/*"]
 }
