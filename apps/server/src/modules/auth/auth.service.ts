@@ -69,8 +69,8 @@ export class AuthService {
       select: { id: true, name: true, username: true, email: true, role: true, avatar: true }
     });
 
-    // Generate token for auto-login
-    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
+    // Generate token for auto-login with onboarding status
+    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name, needsOnboarding: true }, { expiresIn: "7d" });
     await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
 
     return { token, user, needsOnboarding: true };
@@ -81,9 +81,7 @@ export class AuthService {
     if (!user) throw { statusCode: 401, message: "Invalid credentials" };
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) throw { statusCode: 401, message: "Invalid credentials" };
-    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
-    await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
-
+    
     // Check if role-specific profile exists and is complete to determine if onboarding is needed
     let needsOnboarding = false;
     if (user.role === "student") {
@@ -93,6 +91,9 @@ export class AuthService {
       const recruiter = await prisma.recruiter.findUnique({ where: { userId: user.id }, include: { company: true } });
       needsOnboarding = !recruiter || !recruiter.companyId;
     }
+
+    // Generate token with onboarding status
+    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name, needsOnboarding }, { expiresIn: "7d" });
 
     return { token, user: { id: user.id, name: user.name, username: user.username, email: user.email, role: user.role, avatar: user.avatar }, needsOnboarding };
   }
@@ -127,9 +128,6 @@ export class AuthService {
       });
     }
 
-    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
-    await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
-
     // Check if role-specific profile exists and is complete to determine if onboarding is needed
     let needsOnboarding = false;
     if (user.role === "student") {
@@ -139,6 +137,9 @@ export class AuthService {
       const recruiter = await prisma.recruiter.findUnique({ where: { userId: user.id }, include: { company: true } });
       needsOnboarding = !recruiter || !recruiter.companyId;
     }
+
+    // Generate token with onboarding status
+    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name, needsOnboarding }, { expiresIn: "7d" });
 
     return {
       token,
@@ -170,7 +171,9 @@ export class AuthService {
 
   async updateRole(userId: string, role: "student" | "recruiter" | "admin", app: FastifyInstance) {
     const user = await prisma.user.update({ where: { id: userId }, data: { role } });
-    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name }, { expiresIn: "7d" });
+    // When updating role during onboarding, always set needsOnboarding=true
+    // User needs to complete their role-specific profile
+    const token = app.jwt.sign({ id: user.id, email: user.email, role: user.role, name: user.name, needsOnboarding: true }, { expiresIn: "7d" });
     await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
     return { token, user: { id: user.id, email: user.email, username: user.username, name: user.name, role: user.role, avatar: user.avatar } };
   }

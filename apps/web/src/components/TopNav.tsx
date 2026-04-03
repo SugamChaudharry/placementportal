@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Bell, Search, ChevronDown } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { navStudent, navRecruiter, navAdmin, NOTIFS, P } from "@/lib/constants";
+import { useAuthStore } from "@/store/auth.store";
 
 type TopNavProps = {
   page: string;
@@ -16,6 +18,7 @@ type TopNavProps = {
 export function TopNav({ page, role, setPage, showNotifs, setShowNotifs }: TopNavProps) {
   const [search, setSearch] = useState("");
   const nav = role === "recruiter" ? navRecruiter : role === "admin" ? navAdmin : navStudent;
+  const user = useAuthStore((state) => state.user);
   const pageTitles: { [key: string]: string } = {
     dashboard: "Dashboard", profile: "My Profile", resume: "My Resume", jobs: "Jobs & Placements",
     applications: "My Applications", calendar: "Placement Calendar", chat: "Chat", meetings: "Meetings",
@@ -76,14 +79,14 @@ export function TopNav({ page, role, setPage, showNotifs, setShowNotifs }: TopNa
           )}
         </div>
         {/* Avatar */}
-        <div className="flex items-center gap-2 cursor-pointer group">
-          <Avatar name="Arjun Kumar" size={32} />
+        <Link href="/profile" className="flex items-center gap-2 cursor-pointer group">
+          <Avatar name={user?.name || "User"} size={32} />
           <div className="hidden md:block">
-            <p className="text-xs font-600" style={{ fontWeight: 600, lineHeight: 1.2 }}>Arjun Kumar</p>
+            <p className="text-xs font-600" style={{ fontWeight: 600, lineHeight: 1.2 }}>{user?.name || "User"}</p>
             <p className="text-xs text-gray-400 capitalize">{role}</p>
           </div>
           <ChevronDown size={14} className="text-gray-400" />
-        </div>
+        </Link>
       </div>
     </div>
   );

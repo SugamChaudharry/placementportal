@@ -4,6 +4,47 @@ import { ResumeService } from "./resume.service";
 export async function resumeRoutes(app: FastifyInstance) {
   const svc = new ResumeService();
 
+  // Upload resume file
+  app.post("/upload", {
+    onRequest: [(app as any).authenticate],
+    handler: async (req: any, reply) => {
+      try {
+        const userId = (req as any).user.id;
+        const data = await req.file();
+
+        if (!data) {
+          return reply.status(400).send({ message: "No file provided" });
+        }
+
+        const { filename, mimetype } = data;
+        const buffer = await data.toBuffer();
+
+        // Validate file type
+        const allowedMimes = [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ];
+        if (!allowedMimes.includes(mimetype)) {
+          return reply.status(400).send({ message: "Only PDF and Word documents allowed" });
+        }
+
+        // Validate file size (5MB max)
+        const maxSize = 5 * 1024 * 1024;
+        if (buffer.length > maxSize) {
+          return reply.status(400).send({ message: "File size exceeds 5MB limit" });
+        }
+
+        const result = await svc.uploadResume(userId, buffer, filename);
+        return reply.send(result);
+      } catch (error: any) {
+        return reply.status(500).send({
+          message: error.message || "Failed to upload resume",
+        });
+      }
+    },
+  });
+
   // Get all versions
   app.get("/versions", {
     onRequest: [(app as any).authenticate],

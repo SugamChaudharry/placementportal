@@ -55,13 +55,12 @@ export default function AuthPage({ onLogin }: { onLogin: (params: { role: string
         name,
         email,
         password: pass,
-        role: "student", // Default to student, can be changed during onboarding
       });
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
-      // New users always need onboarding after registration
-      onLogin({ role: data.user.role, needsOnboarding: true });
+      // Redirect based on onboarding status (same as Google flow)
+      onLogin({ role: data.needsOnboarding ? "onboarding" : data.user.role, needsOnboarding: data.needsOnboarding });
     },
     onError: (err: any) => {
       const message = err.response?.data?.message || err.message || "Registration failed";

@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import rateLimit from "@fastify/rate-limit";
+import multipart from "@fastify/multipart";
 import { createServer } from "http";
 import { Server as SocketServer } from "socket.io";
 
@@ -31,6 +32,7 @@ const httpServer = createServer(app.server as any);
 app.register(cors, { origin: env.CLIENT_URL, credentials: true });
 app.register(jwt, { secret: env.JWT_SECRET });
 app.register(rateLimit, { max: 100, timeWindow: "1 minute" });
+app.register(multipart, { limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
 // ── Auth Decorator ────────────────────────────────────────────────────
 app.decorate("authenticate", async (req: any, reply: any) => {

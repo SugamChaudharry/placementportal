@@ -1,7 +1,33 @@
 import { prisma } from "../../shared/database/prisma";
 import { queueJobs } from "../../shared/queue/queue";
+import { cloudinary } from "@/lib/cloudinary";
 
 export class ResumeService {
+  // Upload resume file to Cloudinary
+  async uploadResume(userId: string, buffer: Buffer, filename: string) {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: `resumes/${new Date().getFullYear()}/${new Date().getMonth() + 1}`,
+          resource_type: "auto",
+          public_id: `${userId}-${Date.now()}`,
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else
+            resolve({
+              success: true,
+              url: result?.secure_url,
+              filename: result?.original_filename || filename,
+              uploadedAt: new Date(),
+            });
+        }
+      );
+
+      uploadStream.end(buffer);
+    });
+  }
+
   // Get all resume versions for user
   async getVersions(userId: string) {
     const student = await prisma.student.findUnique({

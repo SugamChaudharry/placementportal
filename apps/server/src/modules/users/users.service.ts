@@ -3,6 +3,7 @@ import { redis, redisKeys } from "../../shared/database/redis";
 import { queueJobs } from "../../shared/queue/queue";
 import { env } from "../../config/env";
 import type { UpdateProfileDto, OnboardingDto, RecruiterOnboardingDto } from "./users.schema";
+import axios from "axios";
 
 export class UsersService {
   // Get user profile with details
@@ -94,6 +95,19 @@ export class UsersService {
 
   // Complete onboarding (all 5 steps)
   async completeOnboarding(userId: string, dto: OnboardingDto) {
+    // Validate resume URL is provided
+    if (!dto.resume?.url) {
+      throw { statusCode: 400, message: "Resume URL is required" };
+    }
+
+    // Basic URL format validation for Cloudinary URLs
+    const isValidCloudinaryUrl = dto.resume.url.startsWith("https://res.cloudinary.com/") ||
+                                   dto.resume.url.startsWith("http://res.cloudinary.com/");
+    
+    if (!isValidCloudinaryUrl) {
+      throw { statusCode: 400, message: "Invalid resume URL format" };
+    }
+
     const profileComplete = 100;
 
     // Check for username collision if username is being updated
@@ -124,8 +138,8 @@ export class UsersService {
               cgpa: dto.academic.cgpa,
               graduationYear: dto.academic.graduationYear,
               backlogs: dto.academic.backlogs,
-              skills: dto.skills.technical,
-              resumeUrl: dto.resume?.url,
+              skills: dto.skills.technical || [],
+              resumeUrl: dto.resume.url,
               profileComplete,
             },
             update: {
@@ -139,8 +153,8 @@ export class UsersService {
               cgpa: dto.academic.cgpa,
               graduationYear: dto.academic.graduationYear,
               backlogs: dto.academic.backlogs,
-              skills: dto.skills.technical,
-              resumeUrl: dto.resume?.url,
+              skills: dto.skills.technical || [],
+              resumeUrl: dto.resume.url,
               profileComplete,
             },
           },

@@ -41,14 +41,17 @@ export default function RegisterPage() {
         name,
         email,
         password: pass,
-        role: "student",
       });
     },
     onSuccess: (data) => {
       setAuth(data.user, data.token);
       setTokenCookie(data.token); // Ensure cookie is set for middleware
-      // New users always need onboarding
-      router.push("/onboarding/student");
+      // Redirect based on onboarding status (same as Google flow)
+      if (data.needsOnboarding) {
+        router.push("/onboarding/role");
+      } else {
+        router.push("/");
+      }
     },
     onError: (err: any) => {
       const message = err.response?.data?.message || err.message || "Registration failed";
