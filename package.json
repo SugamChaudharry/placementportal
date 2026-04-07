@@ -6,7 +6,10 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
-    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "sync": "pnpm install && pnpm --filter @portal/server db:generate && pnpm build",
+    "sync:quick": "pnpm install && pnpm --filter @portal/server db:generate",
+    "sync:migrate": "pnpm install && pnpm --filter @portal/server db:migrate && pnpm build"
   },
   "devDependencies": {
     "turbo": "^2.8.21",

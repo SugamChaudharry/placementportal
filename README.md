@@ -29,4 +29,14 @@ pnpm install
 pnpm dev
 ```
 
+## 🔄 Sync After Git Pull
+
+After pulling changes from GitHub, run one of these commands:
+
+| Command | Use Case |
+|---------|----------|
+| `pnpm sync` | Full sync - deps + Prisma generate + build (recommended) |
+| `pnpm sync:quick` | Quick sync - just deps + Prisma generate (faster) |
+| `pnpm sync:migrate` | Full sync + database migrations (if schema changed) |
+
 Happy coding! 🚀
