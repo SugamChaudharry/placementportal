@@ -19,6 +19,7 @@ export default function RecruiterOnboardingPage() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const labels = ["Personal", "Company", "Role", "Review"];
   const requiredFields: Record<number, string[]> = {
     1: ["name", "phone", "username"],
@@ -93,6 +94,31 @@ export default function RecruiterOnboardingPage() {
     validateToken();
   }, [router]);
 
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const validateStep = (stepNum: number): boolean => {
+    const fields = requiredFields[stepNum];
+    const errors: Record<string, string> = {};
+    let isValid = true;
+
+    for (const field of fields) {
+      const value = formData[field as keyof typeof formData];
+      if (!value || value.trim() === "") {
+        errors[field] = "This field is required";
+        isValid = false;
+      }
+    }
+
+    setFieldErrors(errors);
+    return isValid;
+  };
+
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep(s => s + 1);
+    }
+  };
+
   const updateForm = (key: string, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
     if (key === "username") {
@@ -122,9 +148,18 @@ export default function RecruiterOnboardingPage() {
       };
       return await recruiterService.completeOnboarding(payload);
     },
-    onSuccess: () => {
-      // Redirect to dashboard after onboarding complete
-      router.push("/");
+    onSuccess: (data) => {
+      // Update token with new one from backend (includes updated onboarding/verification status)
+      if (data.data?.token) {
+        setAuth(data.data.user, data.data.token);
+      }
+      // Check verification status and redirect accordingly
+      const verificationStatus = data.data?.user?.recruiter?.verificationStatus;
+      if (verificationStatus === "PENDING") {
+        router.push("/onboarding/pending-verification");
+      } else {
+        router.push("/");
+      }
     },
     onError: (err: any) => {
       const message = err.response?.data?.message || err.message || "Failed to submit profile. Please try again.";
@@ -187,19 +222,32 @@ export default function RecruiterOnboardingPage() {
                     placeholder="Choose a username"
                     value={formData.username}
                     onChange={e => updateForm("username", e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))}
-                    className="pl-10"
+                    className={`pl-10 ${fieldErrors.username ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">Auto-generated. You can change it to a unique name.</p>
                 {usernameError && <p className="text-xs text-red-500 mt-1">{usernameError}</p>}
+                {fieldErrors.username && <p className="text-xs text-red-500 mt-1">{fieldErrors.username}</p>}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Full name *</label>
-                <Input placeholder="Enter your full name" value={formData.name} onChange={e => updateForm("name", e.target.value)} />
+                <Input 
+                  placeholder="Enter your full name" 
+                  value={formData.name} 
+                  onChange={e => updateForm("name", e.target.value)}
+                  className={fieldErrors.name ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
+                />
+                {fieldErrors.name && <p className="text-xs text-red-500 mt-1">{fieldErrors.name}</p>}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Phone number *</label>
-                <Input placeholder="Enter your phone number" value={formData.phone} onChange={e => updateForm("phone", e.target.value)} />
+                <Input 
+                  placeholder="Enter your phone number" 
+                  value={formData.phone} 
+                  onChange={e => updateForm("phone", e.target.value)}
+                  className={fieldErrors.phone ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
+                />
+                {fieldErrors.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone}</p>}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Work email address <span className="text-gray-400 font-normal">(Optional)</span></label>
@@ -217,7 +265,13 @@ export default function RecruiterOnboardingPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Company name *</label>
-                <Input placeholder="Enter company name" value={formData.companyName} onChange={e => updateForm("companyName", e.target.value)} />
+                <Input 
+                  placeholder="Enter company name" 
+                  value={formData.companyName} 
+                  onChange={e => updateForm("companyName", e.target.value)}
+                  className={fieldErrors.companyName ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}
+                />
+                {fieldErrors.companyName && <p className="text-xs text-red-500 mt-1">{fieldErrors.companyName}</p>}
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Company website <span className="text-gray-400 font-normal">(Optional)</span></label>
@@ -299,7 +353,7 @@ export default function RecruiterOnboardingPage() {
                 <Button variant="secondary" onClick={() => setStep(s => s + 1)}>Skip</Button>
               )}
               {step < 4 ? (
-                <Button onClick={() => setStep(s => s + 1)} icon={ChevronRight}>Next</Button>
+                <Button onClick={handleNext} icon={ChevronRight}>Next</Button>
               ) : (
                 <Button
                   onClick={handleFinish}

@@ -36,7 +36,7 @@ export async function userRoutes(app: FastifyInstance) {
     onRequest: [(app as any).authenticate],
     schema: { body: recruiterOnboardingSchema },
     handler: async (req) => {
-      return await svc.completeRecruiterOnboarding((req as any).user.id, req.body as any);
+      return await svc.completeRecruiterOnboarding((req as any).user.id, req.body as any, app);
     },
   });
 

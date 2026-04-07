@@ -17,10 +17,21 @@ export async function middleware(request: NextRequest) {
     const payload = decodeJwt(token);
     const needsOnboarding = Boolean(payload.needsOnboarding);
     const isOnboardingRoute = pathname.startsWith("/onboarding/");
+    const verificationStatus = payload.verificationStatus as string | undefined;
+    const isPendingVerification = verificationStatus === "PENDING";
 
     // Logged-in users on auth pages → redirect to home
     if (pathname.startsWith("/auth/")) {
       return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // Pending verification recruiters - only allow access to pending verification page
+    if (isPendingVerification) {
+      if (pathname === "/onboarding/pending-verification") {
+        return NextResponse.next();
+      }
+      // Redirect all other routes to pending verification page
+      return NextResponse.redirect(new URL("/onboarding/pending-verification", request.url));
     }
 
     // Onboarded users on onboarding routes → redirect to home

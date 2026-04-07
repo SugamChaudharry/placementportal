@@ -167,7 +167,7 @@ export class UsersService {
   }
 
   // Complete recruiter onboarding (creates company and recruiter profile with PENDING status)
-  async completeRecruiterOnboarding(userId: string, dto: RecruiterOnboardingDto) {
+  async completeRecruiterOnboarding(userId: string, dto: RecruiterOnboardingDto, app: any) {
     // Check for username collision if username is being updated
     if (dto.username) {
       const existing = await prisma.user.findFirst({
@@ -227,6 +227,20 @@ export class UsersService {
       include: { recruiter: { include: { company: true } } },
     });
 
+    // Generate new token with updated onboarding status (false since onboarding is complete)
+    // but include verification status
+    const token = app.jwt.sign({ 
+      id: user.id, 
+      email: user.email, 
+      role: user.role, 
+      name: user.name, 
+      needsOnboarding: false,
+      verificationStatus: user.recruiter?.verificationStatus || "PENDING"
+    }, { expiresIn: "7d" });
+    
+    // Store new session token in Redis
+    await redis.setex(redisKeys.session(user.id), 7 * 24 * 60 * 60, token);
+
     // Notify admins about new recruiter verification request
     if (env.RESEND_API_KEY) {
       await queueJobs.email({
@@ -236,7 +250,11 @@ export class UsersService {
       });
     }
 
-    return { user, message: "Profile submitted for verification. You will be notified once approved." };
+    return { 
+      user, 
+      token,
+      message: "Profile submitted for verification. You will be notified once approved." 
+    };
   }
 
   // Upload profile photo (presigned URL for S3)
