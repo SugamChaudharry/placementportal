@@ -1,0 +1,531 @@
+[
+  {
+    "_id": "69df3a7ac9a5837f604387f3",
+    "name": "Rahul Sharma",
+    "email": "rahul.sharma@gmail.com",
+    "coverLetter": "3 years React/Node.js experience in building scalable web apps.",
+    "phone": 9811111111,
+    "address": "Andheri East, Mumbai",
+    "resume": {
+      "public_id": "r1",
+      "url": "https://ex.com/r.pdf",
+      "localPath": null,
+      "originalUrl": "https://ex.com/r.pdf",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69df3a7ac9a5837f604387ac",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438798",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387f5",
+    "name": "Priya Patel",
+    "email": "priya.patel@gmail.com",
+    "coverLetter": "2 years UI/UX design experience with Figma and Adobe XD.",
+    "phone": 9822222222,
+    "address": "Koramangala, Bangalore",
+    "resume": {
+      "public_id": "r2",
+      "url": "https://ex.com/p.pdf",
+      "localPath": null,
+      "originalUrl": "https://ex.com/p.pdf",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69df3a7ac9a5837f604387ad",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438799",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387f7",
+    "name": "Amit Kumar",
+    "email": "amit.kumar@gmail.com",
+    "coverLetter": "Python developer with 4 years of data processing experience.",
+    "phone": 9833333333,
+    "address": "Connaught Place, Delhi",
+    "resume": {
+      "public_id": "r3",
+      "url": "https://ex.com/a.pdf",
+      "localPath": null,
+      "originalUrl": "https://ex.com/a.pdf",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69df3a7ac9a5837f604387ae",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f6043879a",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387f9",
+    "name": "Neha Gupta",
+    "email": "neha.gupta@gmail.com",
+    "coverLetter": "DevOps engineer with AWS and Docker expertise for 3 years.",
+    "phone": 9844444444,
+    "address": "HITEC City, Hyderabad",
+    "resume": {
+      "public_id": "r4",
+      "url": "https://ex.com/n.pdf",
+      "localPath": null,
+      "originalUrl": "https://ex.com/n.pdf",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69df3a7ac9a5837f604387af",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f6043879b",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69df60a41390d1f671e6436f",
+    "name": "ishita",
+    "email": "ishitagupta.ig1@gmail.com",
+    "coverLetter": "resume",
+    "phone": 9709719000,
+    "address": "Gandhi Bazaar Main Road,Basavanagudi",
+    "resume": {
+      "public_id": "lyaqgspbrkoilvizpxkp",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776246947/lyaqgspbrkoilvizpxkp.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776246947/lyaqgspbrkoilvizpxkp.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69df60691390d1f671e6435b",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438798",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69df620476b300cbb1d311ac",
+    "name": "venky",
+    "email": "venkybattula11@gmail.com",
+    "coverLetter": "good",
+    "phone": 7894562583,
+    "address": "mymlavaram",
+    "resume": {
+      "public_id": "ymhhflftgvu98moknxdu",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776247300/ymhhflftgvu98moknxdu.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776247300/ymhhflftgvu98moknxdu.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69df61d876b300cbb1d311a2",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438799",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69dfa14c6251cf706a668fec",
+    "name": "Moiz Kapasi",
+    "email": "moizkapasi@yopmail.com",
+    "coverLetter": "aksjdkasjdkasjds",
+    "phone": 6355894754,
+    "address": "Jamalpur",
+    "resume": {
+      "public_id": "pesjnh35mw87zjxqfjon",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776263499/pesjnh35mw87zjxqfjon.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776263499/pesjnh35mw87zjxqfjon.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69dfa0a86251cf706a668fdb",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438798",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e0b2780d1ec4b0a60b300e",
+    "name": " pratiksha thorat",
+    "email": "thoratpratikshac1@gmail.com",
+    "coverLetter": "hi ",
+    "phone": 6543876542,
+    "address": "xyz",
+    "resume": {
+      "public_id": "hzhnu1w9hgs1jlvsodey",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776333903/hzhnu1w9hgs1jlvsodey.jpg",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776333903/hzhnu1w9hgs1jlvsodey.jpg",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e0b2420d1ec4b0a60b3004",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438798",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e10af8f4b0a3ed6b06a137",
+    "name": "Sreeu",
+    "email": "sreenu@gmail.com",
+    "coverLetter": "hsdbh",
+    "phone": 7671032829,
+    "address": "Proddatur",
+    "resume": {
+      "public_id": "l5q5tdnu1ke3r5oycmfi",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356090/l5q5tdnu1ke3r5oycmfi.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356090/l5q5tdnu1ke3r5oycmfi.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e10aa2f4b0a3ed6b06a12a",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438798",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e10b2bf4b0a3ed6b06a14b",
+    "name": "SReenu",
+    "email": "sreenu@gmail.com",
+    "coverLetter": "ajdfjsdjdf",
+    "phone": 6576890768,
+    "address": "Proddatur",
+    "resume": {
+      "public_id": "barmxmeatiawmvyymkv9",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356140/barmxmeatiawmvyymkv9.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356140/barmxmeatiawmvyymkv9.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e10aa2f4b0a3ed6b06a12a",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f6043879b",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e10b8df4b0a3ed6b06a163",
+    "name": "Sreenu",
+    "email": "sreenu@gmail.com",
+    "coverLetter": "sgdhjksdf",
+    "phone": 465768909,
+    "address": "gsdhfsdf",
+    "resume": {
+      "public_id": "p5hnqfv0ws0xrcy5zxzw",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356239/p5hnqfv0ws0xrcy5zxzw.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356239/p5hnqfv0ws0xrcy5zxzw.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e10aa2f4b0a3ed6b06a12a",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438799",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e10d33f4b0a3ed6b06a1c1",
+    "name": "sreenu",
+    "email": "sreenu@gmail.com",
+    "coverLetter": "jskdnfjsndjf kjsdfjsf ksndf",
+    "phone": 67384399994,
+    "address": "sdbfsdjfndsj",
+    "resume": {
+      "public_id": "dpfhwu9iw7oolws5nlx0",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356660/dpfhwu9iw7oolws5nlx0.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356660/dpfhwu9iw7oolws5nlx0.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e10aa2f4b0a3ed6b06a12a",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69e10be2f4b0a3ed6b06a175",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e10dcff4b0a3ed6b06a1f1",
+    "name": "geetha",
+    "email": "geetha@gmail.com",
+    "coverLetter": "sdfjsndjfnskjdf",
+    "phone": 7634783488,
+    "address": "jsdfhsdfhusdf",
+    "resume": {
+      "public_id": "eiu2wgkcajd1r1psgxyf",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356816/eiu2wgkcajd1r1psgxyf.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776356816/eiu2wgkcajd1r1psgxyf.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e10aa2f4b0a3ed6b06a12a",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f6043879d",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e11f8b92994197497abe74",
+    "name": "Aarefa Kapasi",
+    "email": "aarefakapasi@gmail.com",
+    "coverLetter": "Dear Hiring Manager,\r\n\r\nI am writing to express my interest in the Software Developer position at your organization. I am currently a Computer Science student with a strong foundation in Java, web development, and a growing interest in Artificial Intelligence and Machine Learning.\r\n\r\nI have hands-on experience developing projects such as an Online Job Portal and an E-learning platform using technologies like Java (Spring Boot), React, PHP, and MySQL. These projects have helped me strengthen my understanding of full-stack development, database management, and user-centric design. I am particularly interested in building scalable and efficient applications that solve real-world problems.\r\n\r\nIn addition to my development skills, I am continuously improving my knowledge in data structures, algorithms, and modern frameworks. I am a quick learner, adaptable, and enjoy working in collaborative environments where I can contribute and grow.\r\n\r\nI would welcome the opportunity to bring my technical skills and enthusiasm to your team. Thank you for considering my application. I look forward to the possibility of discussing how I can contribute to your organization.\r\n\r\nSincerely,\r\nAarefa Kapasi\r\n",
+    "phone": 98563325689,
+    "address": "(503) 623-9645 1283 SE Appleseed Dr Dallas, Oregon(OR), 97338",
+    "resume": {
+      "public_id": "prrsxe8d1nsu1muvjccg",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776361355/prrsxe8d1nsu1muvjccg.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776361355/prrsxe8d1nsu1muvjccg.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e11e4a92994197497abe5f",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f6043879a",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e1224892994197497abeaf",
+    "name": "Aarefa Kapasi",
+    "email": "aarefakapasi15@gmail.com",
+    "coverLetter": "Dear Hiring Manager,\r\n\r\nI am writing to express my interest in the Software Developer position at your organization. I am currently a Computer Science student with a strong foundation in Java, web development, and a growing interest in Artificial Intelligence and Machine Learning.\r\n\r\nI have hands-on experience developing projects such as an Online Job Portal and an E-learning platform using technologies like Java (Spring Boot), React, PHP, and MySQL. These projects have helped me strengthen my understanding of full-stack development, database management, and user-centric design. I am particularly interested in building scalable and efficient applications that solve real-world problems.\r\n\r\nIn addition to my development skills, I am continuously improving my knowledge in data structures, algorithms, and modern frameworks. I am a quick learner, adaptable, and enjoy working in collaborative environments where I can contribute and grow.\r\n\r\nI would welcome the opportunity to bring my technical skills and enthusiasm to your team. Thank you for considering my application. I look forward to the possibility of discussing how I can contribute to your organization.\r\n\r\nSincerely,\r\nAarefa Kapasi\r\n",
+    "phone": 9856655485,
+    "address": "(406) 739-4243 3560 Elim Rd Fort Benton, Montana(MT), 59442",
+    "resume": {
+      "public_id": "hfgif2vvqzaazwkgnhu2",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776362056/hfgif2vvqzaazwkgnhu2.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776362056/hfgif2vvqzaazwkgnhu2.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e11e4a92994197497abe5f",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69e11fcd92994197497abe7e",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e24ec81a55ac956f9e2a91",
+    "name": "abc",
+    "email": "abc@gmail.com",
+    "coverLetter": "hsdvvjh hsdvkhsdd shdv",
+    "phone": 8888888888,
+    "address": "pune",
+    "resume": {
+      "public_id": "rpbripsmkrttyo18wdil",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776438986/rpbripsmkrttyo18wdil.jpg",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776438986/rpbripsmkrttyo18wdil.jpg",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e248911a55ac956f9e2a63",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438798",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e3217ee2d8c83039cc4546",
+    "name": "Rohan Shinde",
+    "email": "rohanshinde1237@gmail.com",
+    "coverLetter": "I am Frsher ",
+    "phone": 8889234038,
+    "address": "Chhatrapati Nager Bay pass Road Majalgaon ,Beed",
+    "resume": {
+      "public_id": "zp1ouvpak9s8klc9jpt2",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776492924/zp1ouvpak9s8klc9jpt2.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776492924/zp1ouvpak9s8klc9jpt2.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e32145e2d8c83039cc453c",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438799",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e3221de2d8c83039cc455c",
+    "name": "Rohit Shinde",
+    "email": "rohitshinde1237@gmail.com",
+    "coverLetter": "I am Fresher",
+    "phone": 8830761198,
+    "address": "Chhatrapati Nager Bay pass Road Majalgaon ,Beed",
+    "resume": {
+      "public_id": "sh9mopfwyobb8wdzzxna",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776493081/sh9mopfwyobb8wdzzxna.png",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776493081/sh9mopfwyobb8wdzzxna.png",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e32145e2d8c83039cc453c",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438798",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e393951b779317b5a55bff",
+    "name": "Job Seeker",
+    "email": "jobseeker@gmail.com",
+    "coverLetter": "I am applying this job for the position of mern stack developer",
+    "phone": 8888888888,
+    "address": "Camp pune near poona college",
+    "resume": {
+      "public_id": "by9jixoxqcfjashnuzan",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776522135/by9jixoxqcfjashnuzan.jpg",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776522135/by9jixoxqcfjashnuzan.jpg",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e38f9b1b779317b5a55bb7",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69e391261b779317b5a55bbc",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e4824e5939a56ba1a514ad",
+    "name": "Hannan",
+    "email": "hannanfaras221@gmail.com",
+    "coverLetter": "i am applyoing for this job today",
+    "phone": 88888888,
+    "address": "pune camp near poona college",
+    "resume": {
+      "public_id": "tymj4lu8tzkfqzjelksd",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776583246/tymj4lu8tzkfqzjelksd.jpg",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776583246/tymj4lu8tzkfqzjelksd.jpg",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e38f9b1b779317b5a55bb7",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f6043879b",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e483815939a56ba1a514ca",
+    "name": "Hannan",
+    "email": "hannanfaras221@gmail.com",
+    "coverLetter": "i am applying for this job today",
+    "phone": 888888888,
+    "address": "pune near poona college",
+    "resume": {
+      "public_id": "maunlwq7twp1qmjmy2q2",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776583552/maunlwq7twp1qmjmy2q2.jpg",
+      "localPath": null,
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776583552/maunlwq7twp1qmjmy2q2.jpg",
+      "downloadError": "Failed to download"
+    },
+    "applicantID": {
+      "user": "69e38f9b1b779317b5a55bb7",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69e391261b779317b5a55bbc",
+      "role": "Employer"
+    },
+    "__v": 0
+  },
+  {
+    "_id": "69e5d054b6e59c8d674309d1",
+    "name": "hhh",
+    "email": "vk@gmail.com",
+    "coverLetter": "Hey",
+    "phone": 8823004885,
+    "address": "CDG",
+    "resume": {
+      "public_id": "xbcjqifa2ijpkr5eet6o",
+      "url": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776668755/xbcjqifa2ijpkr5eet6o.jpg",
+      "localPath": "./resumes/resume_022_69e5d054b6e59c8d674309d1.jpg",
+      "originalUrl": "https://res.cloudinary.com/dtgsdprcl/image/upload/v1776668755/xbcjqifa2ijpkr5eet6o.jpg"
+    },
+    "applicantID": {
+      "user": "69e5c943d1d08bd15c6fc08a",
+      "role": "Job Seeker"
+    },
+    "employerID": {
+      "user": "69df3a7ac9a5837f60438799",
+      "role": "Employer"
+    },
+    "status": "Applied",
+    "statusHistory": [],
+    "__v": 0
+  }
+]

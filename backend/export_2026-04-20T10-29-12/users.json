@@ -1,0 +1,776 @@
+[
+  {
+    "_id": "69df3a7ac9a5837f6043879a",
+    "name": "DigitalHub India",
+    "email": "hr@digitalhub.in",
+    "phone": 9333333333,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.811Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f6043879b",
+    "name": "Infosys Limited",
+    "email": "careers@infosys.com",
+    "phone": 9444444444,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.812Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f60438799",
+    "name": "InnovateTech",
+    "email": "hr@innovatetech.com",
+    "phone": 9222222222,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.810Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f60438798",
+    "name": "TechCorp Solutions",
+    "email": "hr@techcorp.com",
+    "phone": 9111111111,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.804Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f6043879e",
+    "name": "HCL Technologies",
+    "email": "careers@hcl.com",
+    "phone": 9777777777,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.814Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f6043879f",
+    "name": "Google India",
+    "email": "hiring@google.co.in",
+    "phone": 9888888888,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.814Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387a0",
+    "name": "Microsoft India",
+    "email": "jobs@microsoft.co.in",
+    "phone": 9999999999,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.815Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387a1",
+    "name": "Amazon Web Services",
+    "email": "careers@aws.amazon.in",
+    "phone": 9123456780,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.815Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f6043879c",
+    "name": "TCS",
+    "email": "recruitment@tcs.com",
+    "phone": 9555555555,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.813Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f6043879d",
+    "name": "Wipro Technologies",
+    "email": "jobs@wipro.com",
+    "phone": 9666666666,
+    "role": "Employer",
+    "createdAt": "2026-04-15T07:12:58.813Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387ac",
+    "name": "Rahul Sharma",
+    "email": "rahul.sharma@gmail.com",
+    "phone": 9811111111,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.864Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387ad",
+    "name": "Priya Patel",
+    "email": "priya.patel@gmail.com",
+    "phone": 9822222222,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.865Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387ae",
+    "name": "Amit Kumar",
+    "email": "amit.kumar@gmail.com",
+    "phone": 9833333333,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.865Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387af",
+    "name": "Neha Gupta",
+    "email": "neha.gupta@gmail.com",
+    "phone": 9844444444,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.866Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b0",
+    "name": "Vikram Singh",
+    "email": "vikram.singh@gmail.com",
+    "phone": 9855555555,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.866Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b1",
+    "name": "Sneha Reddy",
+    "email": "sneha.reddy@gmail.com",
+    "phone": 9866666666,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.866Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b4",
+    "name": "Karan Malhotra",
+    "email": "karan.malhotra@gmail.com",
+    "phone": 9899999999,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.868Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b5",
+    "name": "Ananya Desai",
+    "email": "ananya.desai@gmail.com",
+    "phone": 9900000000,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.869Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b6",
+    "name": "Rohit Verma",
+    "email": "rohit.verma@gmail.com",
+    "phone": 9911111111,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.870Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b7",
+    "name": "Divya Joshi",
+    "email": "divya.joshi@gmail.com",
+    "phone": 9922222222,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.870Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b8",
+    "name": "Aditya Rao",
+    "email": "aditya.rao@gmail.com",
+    "phone": 9933333333,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.870Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b9",
+    "name": "Meera Krishnan",
+    "email": "meera.krishnan@gmail.com",
+    "phone": 9944444444,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.871Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387ba",
+    "name": "Sanjay Menon",
+    "email": "sanjay.menon@gmail.com",
+    "phone": 9955555555,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.872Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b2",
+    "name": "Arjun Nair",
+    "email": "arjun.nair@gmail.com",
+    "phone": 9877777777,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.867Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3a7ac9a5837f604387b3",
+    "name": "Deepika Iyer",
+    "email": "deepika.iyer@gmail.com",
+    "phone": 9888888888,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:12:58.868Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df3c89256094b27fe64b16",
+    "name": "RealTimeTest_1776237705488",
+    "email": "realtime1776237705488@test.com",
+    "phone": 9998887777,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T07:21:45.506Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df472ebbb3d5c6c5fbdf57",
+    "name": "ritik",
+    "email": "ritikksk@gmail.com",
+    "phone": 6292387991,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T08:07:10.494Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df4832bbb3d5c6c5fbdf5b",
+    "name": "DebugTestUser",
+    "email": "debugtest1776240690536@test.com",
+    "phone": 9876543210,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T08:11:31.005Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df605476b300cbb1d31181",
+    "name": "Venky",
+    "email": "venkybattula1011@gmail.com",
+    "phone": 7207237228,
+    "role": "Employer",
+    "createdAt": "2026-04-15T09:54:28.147Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df60691390d1f671e6435b",
+    "name": "Ishita Gupta",
+    "email": "ishitagupta.ig1@gmail.com",
+    "phone": 9709719000,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T09:54:49.196Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df61d876b300cbb1d311a2",
+    "name": "venky battula",
+    "email": "venkybattula11@gmail.com",
+    "phone": 7894562583,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T10:00:56.501Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df635b76b300cbb1d311be",
+    "name": "remu",
+    "email": "venky11@gmail.com",
+    "phone": 9666867414,
+    "role": "Employer",
+    "createdAt": "2026-04-15T10:07:23.376Z",
+    "__v": 0
+  },
+  {
+    "_id": "69df7a8cd052b99e4470cab9",
+    "name": "riteh",
+    "email": "ritesh@gmail.com",
+    "phone": 3292372300,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T11:46:20.860Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfa0a86251cf706a668fdb",
+    "name": "Moiz Kapasi",
+    "email": "moizkapasi@yopmail.com",
+    "phone": 6355894754,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-15T14:28:56.830Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfa1966251cf706a669005",
+    "name": "Aarefa Kapasi",
+    "email": "moizkapasi001@yopmail.com",
+    "phone": 6355894754,
+    "role": "Employer",
+    "createdAt": "2026-04-15T14:32:54.283Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfa860ed0f6922e19b3a28",
+    "name": "Harshad Lohakare",
+    "email": "hlohakare450@gmail.com",
+    "phone": 6656456126,
+    "role": "Employer",
+    "createdAt": "2026-04-15T15:01:52.988Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfbb06e0119ffa19d54e23",
+    "name": "Malaya Ranjan Peda",
+    "email": "pedamalaya@gmail.com",
+    "phone": 9777249152,
+    "role": "Employer",
+    "createdAt": "2026-04-15T16:21:26.821Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfbb06e0119ffa19d54e24",
+    "name": "Malaya Ranjan Peda",
+    "email": "pedamalaya@gmail.com",
+    "phone": 9777249152,
+    "role": "Employer",
+    "createdAt": "2026-04-15T16:21:26.968Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfbb07e0119ffa19d54e29",
+    "name": "Malaya Ranjan Peda",
+    "email": "pedamalaya@gmail.com",
+    "phone": 9777249152,
+    "role": "Employer",
+    "createdAt": "2026-04-15T16:21:27.570Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfbb07e0119ffa19d54e2c",
+    "name": "Malaya Ranjan Peda",
+    "email": "pedamalaya@gmail.com",
+    "phone": 9777249152,
+    "role": "Employer",
+    "createdAt": "2026-04-15T16:21:27.769Z",
+    "__v": 0
+  },
+  {
+    "_id": "69dfbb07e0119ffa19d54e2b",
+    "name": "Malaya Ranjan Peda",
+    "email": "pedamalaya@gmail.com",
+    "phone": 9777249152,
+    "role": "Employer",
+    "createdAt": "2026-04-15T16:21:27.673Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e090384d9b131dc9b3e195",
+    "name": "Anshu",
+    "email": "anshusingh@gmail.com",
+    "phone": 7678936171,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T07:31:04.089Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e090844d9b131dc9b3e1a6",
+    "name": "rajnish",
+    "email": "rm@gmail.com",
+    "phone": 9118466624,
+    "role": "Employer",
+    "createdAt": "2026-04-16T07:32:20.197Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0a21ed36c096ad7076e0a",
+    "name": "hbhbh",
+    "email": "ahbb@gmail.com",
+    "phone": 5871586194,
+    "role": "Employer",
+    "createdAt": "2026-04-16T08:47:26.883Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0a290d36c096ad7076e13",
+    "name": "ghgiuy",
+    "email": "mnbhluy@gmail.com",
+    "phone": 157584285,
+    "role": "Employer",
+    "createdAt": "2026-04-16T08:49:20.450Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0a315d36c096ad7076e1d",
+    "name": "Anshu ",
+    "email": "anshusinghrajput@gmail.com",
+    "phone": 9504668360,
+    "role": "Employer",
+    "createdAt": "2026-04-16T08:51:33.047Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0a3a3d36c096ad7076e2f",
+    "name": "Anhsu singh",
+    "email": "ashu@gmail.com",
+    "phone": 7678943918,
+    "role": "Employer",
+    "createdAt": "2026-04-16T08:53:55.948Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0a47ad36c096ad7076e34",
+    "name": "Ashu Tiwari",
+    "email": "ashut1792004@gmail.com",
+    "phone": 45255165135216,
+    "role": "Employer",
+    "createdAt": "2026-04-16T08:57:30.714Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0b0bb0d1ec4b0a60b2fea",
+    "name": "thorat pratiksha",
+    "email": "thoratpratikshac@gmail.com",
+    "phone": 6537488905,
+    "role": "Employer",
+    "createdAt": "2026-04-16T09:49:47.749Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0b2420d1ec4b0a60b3004",
+    "name": "Pratiksha Thorat",
+    "email": "thoratpratikshac1@gmail.com",
+    "phone": 6537488905,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T09:56:18.058Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e0d4e57d04f68981c0c075",
+    "name": "thorat pratiksha chandrakant",
+    "email": "thoratpratiksha45@gmail.com",
+    "phone": 9664354372,
+    "role": "Employer",
+    "createdAt": "2026-04-16T12:24:05.659Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e10964f4b0a3ed6b06a0e1",
+    "name": "Geetha",
+    "email": "geetha@gmail.com",
+    "phone": 7671032829,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T16:08:04.871Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e109b1f4b0a3ed6b06a0f6",
+    "name": "Geetha",
+    "email": "geetha123@gmail.com",
+    "phone": 7615728383,
+    "role": "Employer",
+    "createdAt": "2026-04-16T16:09:21.020Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e109daf4b0a3ed6b06a0fa",
+    "name": "Geetha",
+    "email": "geeth@gmail.com",
+    "phone": 348798939,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T16:10:02.232Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e10a15f4b0a3ed6b06a101",
+    "name": "Sreenu",
+    "email": "sreenu@gmail.com",
+    "phone": 6578974533,
+    "role": "Employer",
+    "createdAt": "2026-04-16T16:11:01.042Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e10aa2f4b0a3ed6b06a12a",
+    "name": "sreenu123",
+    "email": "sreenu123@gmail.com",
+    "phone": 43567890398,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T16:13:22.212Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e10be2f4b0a3ed6b06a175",
+    "name": "Geetha",
+    "email": "Geetha@gmail.com",
+    "phone": 5467890793,
+    "role": "Employer",
+    "createdAt": "2026-04-16T16:18:42.570Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e119bd932c82a32edfc845",
+    "name": "Abdul Ahad",
+    "email": "abdulahadabbassi2@gmail.com",
+    "phone": 31851264733,
+    "role": "Employer",
+    "createdAt": "2026-04-16T17:17:49.553Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e11e4a92994197497abe5f",
+    "name": "Aarefa Kapasi",
+    "email": "aarefakapasi@gmail.com",
+    "phone": 98566325896,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T17:37:14.874Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e11fcd92994197497abe7e",
+    "name": "Moiz Kapasi",
+    "email": "moizkapasi@gmail.com",
+    "phone": 98563325698,
+    "role": "Employer",
+    "createdAt": "2026-04-16T17:43:41.840Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e13f3ae2bb97a8970d6f6e",
+    "name": "jasmin",
+    "email": "jasmin23@gmail.com",
+    "phone": 12345676,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T19:57:47.165Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e13f7ce2bb97a8970d6f73",
+    "name": "aisha",
+    "email": "aisha23@gmail.com",
+    "phone": 98563214,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-16T19:58:52.566Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e1dee1f4b0a3ed6b06a302",
+    "name": "ram",
+    "email": "ram@gmail.com",
+    "phone": 1234567890,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-17T07:18:57.605Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e21dc7d37e0530db8e8278",
+    "name": "Amine Zaoui",
+    "email": "amine@gmail.com",
+    "phone": 699999999,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-17T11:47:19.423Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e23b8f2a9abe3c2ffd7385",
+    "name": "prakash",
+    "email": "prakash@gmail.com",
+    "phone": 1234567899,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-17T13:54:23.529Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e2425109de24a7532c0728",
+    "name": "himanshu",
+    "email": "shekhar979812@gmail.com",
+    "phone": 7843848888,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-17T14:23:13.736Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e248911a55ac956f9e2a63",
+    "name": "ABCUser",
+    "email": "abcabc@gmail.com",
+    "phone": 8888888888,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-17T14:49:53.164Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e24df21a55ac956f9e2a79",
+    "name": "emp1",
+    "email": "emp1@gmail.com",
+    "phone": 88888888,
+    "role": "Employer",
+    "createdAt": "2026-04-17T15:12:50.566Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e31f19e2d8c83039cc4521",
+    "name": "Rohit Shinde",
+    "email": "rohitshinde1237@gmail.com",
+    "phone": 8839080229,
+    "role": "Employer",
+    "createdAt": "2026-04-18T06:05:13.546Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e32145e2d8c83039cc453c",
+    "name": "Rohan shinde",
+    "email": "rohanshinde1237@gmail.com",
+    "phone": 89831098,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-18T06:14:29.867Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e324c6e2d8c83039cc4571",
+    "name": "harshal ",
+    "email": "hppatil@10gmail.com",
+    "phone": 9289402489,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-18T06:29:26.682Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e336a1949b02f455c7ec8a",
+    "name": "Shreya Ghanty",
+    "email": "shreyaghanty30@gmail.com",
+    "phone": 8509133846,
+    "role": "Employer",
+    "createdAt": "2026-04-18T07:45:37.728Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e35e90150f52de917305e0",
+    "name": "aryan saini",
+    "email": "aryansaini123@gmail.com",
+    "phone": 9457690976,
+    "role": "Employer",
+    "createdAt": "2026-04-18T10:36:00.897Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e38f9b1b779317b5a55bb7",
+    "name": "JobSeeker1",
+    "email": "jobseeker@gmail.com",
+    "phone": 8888888888,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-18T14:05:15.531Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e391261b779317b5a55bbc",
+    "name": "Employer1",
+    "email": "employer@gmail.com",
+    "phone": 9999999999,
+    "role": "Employer",
+    "createdAt": "2026-04-18T14:11:50.818Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e3ba9776fc55ee0a5eeecf",
+    "name": "Codesewa",
+    "email": "swastik@cs.com",
+    "phone": 7873500540,
+    "role": "Employer",
+    "createdAt": "2026-04-18T17:08:39.375Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e3bc3976fc55ee0a5eeee1",
+    "name": "Swastik",
+    "email": "swastik718@gmail.com",
+    "phone": 7539518426,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-18T17:15:37.234Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e4fe887d772376a2c7fce6",
+    "name": "Priyanl",
+    "email": "priyank123@gmail.com",
+    "phone": 9723373708,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-19T16:10:48.058Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e5165b311cecb1239e1ecf",
+    "name": "priya",
+    "email": "priya@gmail.com",
+    "phone": 9326399355,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-19T17:52:27.254Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e5165b311cecb1239e1ed4",
+    "name": "priya",
+    "email": "priya@gmail.com",
+    "phone": 9326399355,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-19T17:52:27.753Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e5165b311cecb1239e1ed3",
+    "name": "priya",
+    "email": "priya@gmail.com",
+    "phone": 9326399355,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-19T17:52:27.751Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e516ef311cecb1239e1ee1",
+    "name": "mr roy",
+    "email": "mrroy@gmail.com",
+    "phone": 9987704600,
+    "role": "Employer",
+    "createdAt": "2026-04-19T17:54:55.199Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e5c943d1d08bd15c6fc08a",
+    "name": "VKS",
+    "email": "vk@gmail.com",
+    "phone": 8823004858,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-20T06:35:47.056Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e5d9701079b6843767a4a7",
+    "name": "Mr sahu",
+    "email": "sahu@gmail.com",
+    "phone": 9987704603,
+    "role": "Employer",
+    "createdAt": "2026-04-20T07:44:48.094Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e5ed27b12ef20606dca591",
+    "name": "Vivek Shukla",
+    "email": "vivek@gmail.com",
+    "phone": 9424938202,
+    "role": "Job Seeker",
+    "createdAt": "2026-04-20T09:08:55.040Z",
+    "__v": 0
+  },
+  {
+    "_id": "69e5ff0e5619cb1193a8132a",
+    "name": "Sugam Chaudhary",
+    "email": "sugam.chaudharry@gmail.com",
+    "phone": 8630460601,
+    "role": "Employer",
+    "createdAt": "2026-04-20T10:25:18.287Z",
+    "__v": 0
+  }
+]
