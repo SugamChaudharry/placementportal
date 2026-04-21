@@ -15,8 +15,10 @@ import Application from "./components/Application/Application";
 import MyApplications from "./components/Application/MyApplications";
 import PostJob from "./components/Job/PostJob";
 import Profile from "./components/Auth/Profile";
+import PublicProfile from "./components/Auth/PublicProfile";
 import JobSeekers from "./components/User/JobSeekers";
 import MyJobs from "./components/Job/MyJobs";
+import Chat from "./components/Chat/Chat";
 import NotFound from "./components/NotFound/NotFound";
 
 const App = () => {
@@ -54,7 +56,9 @@ const App = () => {
           <Route path="/job/post" element={<PostJob />} />
           <Route path="/job/me" element={<MyJobs />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/user/profile/:pid" element={<PublicProfile />} />
           <Route path="/jobseekers" element={<JobSeekers />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />

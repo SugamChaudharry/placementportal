@@ -1,6 +1,7 @@
 import React, { createContext, useState } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import { SocketProvider } from "./context/SocketContext.jsx";
 
 export const Context = createContext({
   isAuthorized: false,
@@ -19,7 +20,9 @@ const AppWrapper = () => {
         setUser,
       }}
     >
-      <App />
+      <SocketProvider>
+        <App />
+      </SocketProvider>
     </Context.Provider>
   );
 };

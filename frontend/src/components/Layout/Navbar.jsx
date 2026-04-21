@@ -4,7 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { AiOutlineClose } from "react-icons/ai"; // Import the close icon
+import { AiOutlineClose } from "react-icons/ai";
+import { FaComments } from "react-icons/fa";
 
 const Navbar = () => {
   const [show, setShow] = useState(false);
@@ -72,6 +73,12 @@ const Navbar = () => {
               </li>
             </>
           ) : null}
+
+          <li>
+            <Link to={"/chat"} onClick={() => setShow(false)}>
+              <FaComments style={{ marginRight: "5px" }} /> CHAT
+            </Link>
+          </li>
 
           <li>
             <Link to={"/profile"} onClick={() => setShow(false)}>

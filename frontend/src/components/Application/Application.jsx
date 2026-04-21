@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams, Navigate } from "react-router-dom";
 import { Context } from "../../main";
@@ -17,6 +17,15 @@ const Application = () => {
   const { isAuthorized, user } = useContext(Context);
   const navigateTo = useNavigate();
   const { id } = useParams();
+
+  // Pre-fill form with user data
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+    }
+  }, [user]);
 
   // Function to handle file input changes with validation
   const handleFileChange = (event) => {
@@ -88,7 +97,7 @@ const Application = () => {
       setAddress("");
       setResume(null);
       toast.success(data.message);
-      navigateTo("/job/getall");
+      navigateTo(`/job/${id}`);
     } catch (error) {
       const errorMessage = error.response?.data?.message || 
         "Something went wrong. Please try again later.";

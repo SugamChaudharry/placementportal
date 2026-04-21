@@ -61,6 +61,10 @@ const PostJob = () => {
       )
       .then((res) => {
         toast.success(res.data.message);
+        // Redirect to the newly created job page
+        if (res.data.job && res.data.job._id) {
+          navigateTo(`/job/${res.data.job._id}`);
+        }
       })
       .catch((err) => {
         toast.error(err.response.data.message);
