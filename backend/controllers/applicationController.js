@@ -2,6 +2,7 @@ import { catchAsyncErrors } from "../middlewares/catchAsyncError.js";
 import ErrorHandler from "../middlewares/error.js";
 import { Application } from "../models/applicationSchema.js";
 import { Job } from "../models/jobSchema.js";
+import { ChatGroup } from "../models/chatGroupSchema.js";
 import cloudinary from "cloudinary";
 
 export const postApplication = catchAsyncErrors(async (req, res, next) => {
@@ -83,6 +84,46 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
         url: cloudinaryResponse.secure_url,
       },
     });
+
+    // Auto-join applicant to job chat group
+    try {
+      let chatGroup = await ChatGroup.findOne({ job: jobId, type: "job" });
+      
+      if (!chatGroup) {
+        // Create chat group if it doesn't exist
+        chatGroup = await ChatGroup.create({
+          name: `${jobDetails.title} - Applicants`,
+          description: `Discussion group for ${jobDetails.title} position`,
+          type: "job",
+          job: jobId,
+          creator: jobDetails.postedBy,
+          members: [
+            {
+              user: jobDetails.postedBy,
+              role: "admin",
+              joinedAt: new Date(),
+            },
+          ],
+        });
+      }
+
+      // Add applicant as member if not already
+      const isMember = chatGroup.members.some(
+        (m) => m.user.toString() === req.user._id.toString()
+      );
+
+      if (!isMember) {
+        chatGroup.members.push({
+          user: req.user._id,
+          role: "member",
+          joinedAt: new Date(),
+        });
+        await chatGroup.save();
+      }
+    } catch (chatError) {
+      console.error("Failed to add applicant to chat group:", chatError);
+      // Don't fail the application if chat join fails
+    }
     
     res.status(200).json({
       success: true,
