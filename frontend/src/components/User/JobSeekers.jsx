@@ -152,12 +152,11 @@ const JobSeekerCard = ({ seeker, onClick }) => {
       .toUpperCase();
   };
 
-  // Determine experience level based on some criteria
-  const getExperienceLevel = (yearsExp) => {
-    if (!yearsExp) return "Entry Level";
-    if (yearsExp <= 2) return "Entry Level";
-    if (yearsExp <= 5) return "Mid Level";
-    return "Senior";
+  // Calculate member since based on createdAt
+  const getMemberSince = (createdAt) => {
+    if (!createdAt) return "Recently joined";
+    const date = new Date(createdAt);
+    return `Member since ${date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
   };
 
   return (
@@ -175,7 +174,7 @@ const JobSeekerCard = ({ seeker, onClick }) => {
             {seeker.name}
           </h3>
           <Badge variant="info" size="sm">
-            {getExperienceLevel(seeker.yearsOfExperience)}
+            {getMemberSince(seeker.createdAt)}
           </Badge>
         </div>
 
@@ -189,26 +188,6 @@ const JobSeekerCard = ({ seeker, onClick }) => {
           </p>
         </div>
 
-        {/* Top Skills Preview */}
-        {seeker.skills && seeker.skills.length > 0 && (
-          <div className="mb-4">
-            <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-              Top Skills
-            </p>
-            <div className="flex flex-wrap gap-1">
-              {seeker.skills.slice(0, 3).map((skill, index) => (
-                <Badge key={index} variant="secondary" size="sm">
-                  {skill}
-                </Badge>
-              ))}
-              {seeker.skills.length > 3 && (
-                <Badge variant="secondary" size="sm">
-                  +{seeker.skills.length - 3} more
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* View Profile Button */}
         <Link 

@@ -24,7 +24,7 @@ export const SocketProvider = ({ children }) => {
 
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
       // Socket.io needs the base URL without /api/v1 path
-      const socketUrl = apiUrl.replace(/\/api\/v1$/, "");
+      const socketUrl = apiUrl.replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
 
       const newSocket = io(socketUrl, {
         withCredentials: true,
