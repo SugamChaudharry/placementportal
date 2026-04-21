@@ -123,3 +123,18 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
     },
   });
 });
+
+// Get public profile by ID
+export const getPublicProfile = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+
+  const user = await User.findById(id).select("_id name email phone role createdAt");
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
