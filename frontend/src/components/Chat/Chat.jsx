@@ -1,112 +1,80 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
+import { Context } from "../../main";
+import { Navigate, useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { FaPaperPlane, FaPhone, FaVideo, FaInfoCircle, FaSearch, FaUser, FaUsers, FaCheck, FaCheckDouble } from "react-icons/fa";
+import { Card, Container } from "../UI";
+import { useSocket } from "../../context/SocketContext";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Context } from "../../main";
-import { useSocket } from "../../context/SocketContext";
-import { Navigate } from "react-router-dom";
-import { FaPaperPlane, FaSearch, FaUser, FaUsers } from "react-icons/fa";
 
 const Chat = () => {
   const { isAuthorized, user } = useContext(Context);
-  const { socket, joinGroup, leaveGroup, isConnected } = useSocket();
-  const [activeChats, setActiveChats] = useState([]);
-  const [activeGroups, setActiveGroups] = useState([]);
+  const { socket, isConnected, emitTyping, emitStopTyping, joinGroup, leaveGroup } = useSocket();
+  const [directChats, setDirectChats] = useState([]);
+  const [chatGroups, setChatGroups] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedType, setSelectedType] = useState(null); // 'direct' or 'group'
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [messageInput, setMessageInput] = useState("");
+  const [typingUsers, setTypingUsers] = useState({});
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [typingUsers, setTypingUsers] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const messagesEndRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Fetch user's chats and groups
+  // Fetch conversations on mount
   useEffect(() => {
-    const fetchChats = async () => {
+    const fetchConversations = async () => {
+      if (!isAuthorized) return;
       try {
+        setLoading(true);
         const { data } = await axios.get(
           `${import.meta.env.VITE_API_URL}/message/chats`,
           { withCredentials: true }
         );
-        setActiveChats(data.directChats || []);
-        setActiveGroups(data.chatGroups || []);
+        
+        // Store direct chats and groups separately
+        setDirectChats(data.directChats || []);
+        setChatGroups(data.chatGroups || []);
+        
       } catch (error) {
+        console.error("Failed to fetch conversations:", error);
         toast.error("Failed to load chats");
       } finally {
         setLoading(false);
       }
     };
-
-    if (isAuthorized) {
-      fetchChats();
-    }
+    fetchConversations();
   }, [isAuthorized]);
 
-  // Socket event listeners
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("receive_message", (data) => {
-      const { type, message, groupId } = data;
-      
-      if (type === "direct" && selectedChat && selectedChat._id === message.sender._id) {
-        setMessages((prev) => [...prev, message]);
-      } else if (type === "group" && selectedChat && selectedChat._id === groupId) {
-        setMessages((prev) => [...prev, message]);
-      }
-    });
-
-    socket.on("typing", (data) => {
-      const { userId, userName, type } = data;
-      setTypingUsers((prev) => {
-        if (!prev.find((u) => u.userId === userId)) {
-          return [...prev, { userId, userName, type }];
-        }
-        return prev;
-      });
-
-      // Clear typing after 3 seconds
-      setTimeout(() => {
-        setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
-      }, 3000);
-    });
-
-    socket.on("stop_typing", (data) => {
-      const { userId } = data;
-      setTypingUsers((prev) => prev.filter((u) => u.userId !== userId));
-    });
-
-    return () => {
-      socket.off("receive_message");
-      socket.off("typing");
-      socket.off("stop_typing");
-    };
-  }, [socket, selectedChat]);
-
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Load messages when selecting a chat
+  // Select chat and load messages
   const handleSelectChat = async (chat, type) => {
-    setSelectedChat({ ...chat, type });
+    // Leave previous group if any
+    if (selectedType === 'group' && selectedChat?._id) {
+      leaveGroup(selectedChat._id);
+    }
+    
+    setSelectedChat(chat);
+    setSelectedType(type);
     setMessages([]);
-    setTypingUsers([]);
-
+    setTypingUsers({});
+    
     try {
       let url;
-      if (type === "direct") {
+      if (type === 'direct') {
         url = `${import.meta.env.VITE_API_URL}/message/history/direct/${chat._id || chat.user?._id}`;
       } else {
         url = `${import.meta.env.VITE_API_URL}/message/history/group/${chat._id}`;
         joinGroup(chat._id);
       }
-
+      
       const { data } = await axios.get(url, { withCredentials: true });
       setMessages(data.messages || []);
-
+      
       // Mark as read
       await axios.put(
         `${import.meta.env.VITE_API_URL}/message/read`,
@@ -118,19 +86,176 @@ const Chat = () => {
     }
   };
 
-  // Handle sending message
+  // Handle search users
+  const handleSearch = async () => {
+    if (!searchQuery.trim() || searchQuery.length < 2) return;
+    
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/message/search?query=${searchQuery}`,
+        { withCredentials: true }
+      );
+      setSearchResults(data.users || []);
+      setShowSearchResults(true);
+    } catch (error) {
+      toast.error("Search failed");
+    }
+  };
+
+  // Listen for socket events
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (data) => {
+      const { type, message, groupId } = data;
+      
+      // Add message to current chat if relevant
+      if (selectedType === 'direct' && type === 'direct' && selectedChat && 
+          (message.sender._id === selectedChat._id || message.sender._id === selectedChat.user?._id)) {
+        setMessages((prev) => [...prev, message]);
+      } else if (selectedType === 'group' && type === 'group' && selectedChat && groupId === selectedChat._id) {
+        setMessages((prev) => [...prev, message]);
+      }
+      
+      // Update conversation list
+      if (type === 'direct') {
+        const otherUserId = message.sender._id === user._id ? message.recipient : message.sender._id;
+        setDirectChats((prev) => {
+          const updated = prev.map((chat) => {
+            if (chat._id === otherUserId || chat.user?._id === otherUserId) {
+              return { ...chat, lastMessage: message, unreadCount: chat.unreadCount + (message.sender._id !== user._id ? 1 : 0) };
+            }
+            return chat;
+          });
+          return updated.sort((a, b) => new Date(b.lastMessage?.createdAt || 0) - new Date(a.lastMessage?.createdAt || 0));
+        });
+      } else if (type === 'group') {
+        setChatGroups((prev) => {
+          const updated = prev.map((group) => {
+            if (group._id === groupId) {
+              return { ...group, lastMessage: { content: message.content, sentAt: message.createdAt } };
+            }
+            return group;
+          });
+          return updated.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        });
+      }
+    };
+
+    const handleTyping = (data) => {
+      const { userId } = data;
+      setTypingUsers((prev) => ({ ...prev, [userId]: true }));
+      setTimeout(() => {
+        setTypingUsers((prev) => ({ ...prev, [userId]: false }));
+      }, 3000);
+    };
+
+    const handleStopTyping = (data) => {
+      setTypingUsers((prev) => ({ ...prev, [data.userId]: false }));
+    };
+
+    socket.on("receive_message", handleNewMessage);
+    socket.on("typing", handleTyping);
+    socket.on("stop_typing", handleStopTyping);
+
+    return () => {
+      socket.off("receive_message", handleNewMessage);
+      socket.off("typing", handleTyping);
+      socket.off("stop_typing", handleStopTyping);
+    };
+  }, [socket, selectedChat, selectedType, user]);
+
+  // Handle URL params and navigation state after data is loaded
+  useEffect(() => {
+    // Check for navigation state from PublicProfile first
+    const navStateUser = location.state?.startChatWith;
+    // Then check URL params from ProfileModal
+    const targetUserId = searchParams.get("userId");
+    
+    if ((!targetUserId && !navStateUser) || loading) return;
+
+    const handleNavigation = async () => {
+      let userId, userData;
+      
+      if (navStateUser) {
+        // From PublicProfile navigation state
+        userId = navStateUser._id;
+        userData = navStateUser;
+        // Clear state so it doesn't re-trigger
+        navigate(location.pathname, { replace: true, state: {} });
+      } else {
+        // From URL params (ProfileModal)
+        userId = targetUserId;
+        // Clear URL params
+        setSearchParams({});
+      }
+      
+      // Check if chat already exists
+      const existingChat = directChats.find(c => c._id === userId || c.user?._id === userId);
+      
+      if (existingChat) {
+        handleSelectChat(existingChat, 'direct');
+      } else {
+        // Create temporary chat with user data (or fetch if needed)
+        const tempChat = {
+          _id: userId,
+          user: userData || await fetchUserData(userId),
+          lastMessage: null,
+          unreadCount: 0,
+        };
+        setDirectChats(prev => [tempChat, ...prev]);
+        handleSelectChat(tempChat, 'direct');
+      }
+    };
+    
+    const fetchUserData = async (id) => {
+      try {
+        const userRes = await axios.get(
+          `${import.meta.env.VITE_API_URL}/user/profile/${id}`,
+          { withCredentials: true }
+        );
+        return userRes.data.user;
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+        toast.error("Failed to load user for chat");
+        return { _id: id, name: "Unknown", email: "" };
+      }
+    };
+
+    handleNavigation();
+  }, [searchParams, loading, directChats, handleSelectChat, setSearchParams, location.state, navigate, location.pathname]);
+
+  // Handle typing indicator
+  useEffect(() => {
+    if (!selectedChat || !messageInput.trim()) return;
+    
+    const timeout = setTimeout(() => {
+      if (selectedType === 'direct') {
+        emitTyping(selectedChat._id || selectedChat.user?._id);
+      } else {
+        socket?.emit('typing_group', { groupId: selectedChat._id });
+      }
+    }, 300);
+    
+    return () => clearTimeout(timeout);
+  }, [messageInput, selectedChat, selectedType, emitTyping, socket]);
+
+  if (!isAuthorized) {
+    return <Navigate to="/login" />;
+  }
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedChat) return;
+    if (!messageInput.trim() || !selectedChat) return;
 
-    const content = newMessage.trim();
-    setNewMessage("");
+    const content = messageInput.trim();
+    setMessageInput("");
 
     try {
       let url;
       let payload;
 
-      if (selectedChat.type === "direct") {
+      if (selectedType === 'direct') {
         url = `${import.meta.env.VITE_API_URL}/message/send/direct`;
         payload = { recipientId: selectedChat._id || selectedChat.user?._id, content };
       } else {
@@ -141,232 +266,299 @@ const Chat = () => {
       const { data } = await axios.post(url, payload, { withCredentials: true });
       setMessages((prev) => [...prev, data.message]);
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error(error.response?.data?.message || "Failed to send message");
     }
   };
 
-  // Handle search
-  const handleSearch = async () => {
-    if (!searchQuery.trim() || searchQuery.length < 2) return;
-
-    try {
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/message/search?query=${searchQuery}`,
-        { withCredentials: true }
-      );
-      setSearchResults(data.users || []);
-    } catch (error) {
-      toast.error("Search failed");
-    }
+  const formatTime = (date) => {
+    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
-
-  // Handle typing indicator
-  const handleTyping = () => {
-    if (!socket || !isConnected || !selectedChat) return;
-
-    if (selectedChat.type === "direct") {
-      socket.emit("typing_direct", { recipientId: selectedChat._id || selectedChat.user?._id });
-    } else {
-      socket.emit("typing_group", { groupId: selectedChat._id });
-    }
-
-    // Clear existing timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    // Stop typing after 2 seconds
-    typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("stop_typing", {
-        recipientId: selectedChat.type === "direct" ? selectedChat._id || selectedChat.user?._id : null,
-        groupId: selectedChat.type === "group" ? selectedChat._id : null,
-      });
-    }, 2000);
-  };
-
-  if (!isAuthorized) {
-    return <Navigate to="/login" />;
-  }
 
   return (
-    <div className="chat page">
-      <div className="chat-container">
-        {/* Sidebar */}
-        <div className="chat-sidebar">
-          <div className="chat-header">
-            <h3>Messages</h3>
-            <div className={`connection-status ${isConnected ? "connected" : "disconnected"}`}>
-              {isConnected ? "Connected" : "Disconnected"}
-            </div>
+    <main className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col">
+      {/* Header */}
+      <div className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 px-6 py-4 shadow-sm">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Messages</h1>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            Connect with employers and candidates
+          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+            <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </span>
           </div>
+        </div>
+      </div>
 
-          {/* Search */}
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-            />
-            <button onClick={handleSearch}>
-              <FaSearch />
-            </button>
-          </div>
-
-          {/* Search Results */}
-          {searchResults.length > 0 && (
-            <div className="search-results">
-              <h4>Search Results</h4>
-              {searchResults.map((user) => (
-                <div
-                  key={user._id}
-                  className="chat-item"
-                  onClick={() => {
-                    handleSelectChat(user, "direct");
-                    setSearchResults([]);
-                    setSearchQuery("");
-                  }}
+      {/* Main Chat Area */}
+      <Container className="flex-1 py-6 flex gap-6">
+        {/* Conversations List */}
+        <div className="w-full md:w-80 lg:w-96">
+          <Card className="h-full">
+            <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  className="w-full px-3 py-2 pr-10 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+                <button
+                  onClick={handleSearch}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-neutral-400 hover:text-primary-500"
                 >
-                  <div className="chat-avatar">
-                    <FaUser />
-                  </div>
-                  <div className="chat-info">
-                    <h4>{user.name}</h4>
-                    <p>{user.email}</p>
-                  </div>
-                </div>
-              ))}
+                  <FaSearch />
+                </button>
+              </div>
             </div>
-          )}
 
-          {/* Groups */}
-          {activeGroups.length > 0 && (
-            <div className="chat-section">
-              <h4>
-                <FaUsers /> Groups
-              </h4>
-              {activeGroups.map((group) => (
-                <div
-                  key={group._id}
-                  className={`chat-item ${selectedChat?._id === group._id ? "active" : ""}`}
-                  onClick={() => handleSelectChat(group, "group")}
-                >
-                  <div className="chat-avatar">
-                    <FaUsers />
-                  </div>
-                  <div className="chat-info">
-                    <h4>{group.name}</h4>
-                    <p>{group.lastMessage?.content || "No messages yet"}</p>
-                  </div>
+            <div className="overflow-y-auto max-h-96">
+              {loading ? (
+                <div className="p-4 text-center">
+                  <p className="text-neutral-600 dark:text-neutral-400 text-sm">Loading...</p>
                 </div>
-              ))}
-            </div>
-          )}
+              ) : (
+                <>
+                  {/* Search Results */}
+                  {showSearchResults && searchResults.length > 0 && (
+                    <div className="border-b border-neutral-200 dark:border-neutral-700">
+                      <div className="p-2 bg-neutral-100 dark:bg-neutral-800 text-xs font-semibold text-neutral-500">
+                        Search Results
+                      </div>
+                      {searchResults.map((user) => (
+                        <div
+                          key={user._id}
+                          onClick={() => {
+                            handleSelectChat(user, 'direct');
+                            setShowSearchResults(false);
+                            setSearchQuery('');
+                          }}
+                          className="p-3 border-b border-neutral-200 dark:border-neutral-700 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700/50"
+                        >
+                          <div className="flex items-center gap-3">
+                            <FaUser className="text-primary-500" />
+                            <div>
+                              <p className="font-medium text-sm">{user.name}</p>
+                              <p className="text-xs text-neutral-500">{user.email}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-          {/* Direct Messages */}
-          {activeChats.length > 0 && (
-            <div className="chat-section">
-              <h4>
-                <FaUser /> Direct Messages
-              </h4>
-              {activeChats.map((chat) => (
-                <div
-                  key={chat._id}
-                  className={`chat-item ${selectedChat?._id === chat._id ? "active" : ""}`}
-                  onClick={() => handleSelectChat(chat, "direct")}
-                >
-                  <div className="chat-avatar">
-                    <FaUser />
-                  </div>
-                  <div className="chat-info">
-                    <h4>{chat.user?.name}</h4>
-                    <p>{chat.lastMessage?.content || "No messages yet"}</p>
-                    {chat.unreadCount > 0 && (
-                      <span className="unread-badge">{chat.unreadCount}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                  {/* Groups */}
+                  {chatGroups.length > 0 && (
+                    <div className="border-b border-neutral-200 dark:border-neutral-700">
+                      <div className="p-2 bg-neutral-100 dark:bg-neutral-800 text-xs font-semibold text-neutral-500 flex items-center gap-2">
+                        <FaUsers /> Job Groups
+                      </div>
+                      {chatGroups.map((group) => (
+                        <div
+                          key={group._id}
+                          onClick={() => handleSelectChat(group, 'group')}
+                          className={`p-4 border-b border-neutral-200 dark:border-neutral-700 cursor-pointer transition-colors ${
+                            selectedChat?._id === group._id && selectedType === 'group'
+                              ? "bg-primary-50 dark:bg-primary-900/20"
+                              : "hover:bg-neutral-50 dark:hover:bg-neutral-700/50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white">
+                              <FaUsers />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm truncate">{group.name}</p>
+                              <p className="text-xs text-neutral-500 truncate">
+                                {group.lastMessage?.content || `${group.members?.length || 0} members`}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-          {loading && <div className="loading">Loading chats...</div>}
-          {!loading && activeChats.length === 0 && activeGroups.length === 0 && (
-            <div className="no-chats">No conversations yet</div>
-          )}
+                  {/* Direct Messages */}
+                  {directChats.length > 0 && (
+                    <div>
+                      <div className="p-2 bg-neutral-100 dark:bg-neutral-800 text-xs font-semibold text-neutral-500 flex items-center gap-2">
+                        <FaUser /> Direct Messages
+                      </div>
+                      {directChats.map((chat) => (
+                        <div
+                          key={chat._id}
+                          onClick={() => handleSelectChat(chat, 'direct')}
+                          className={`p-4 border-b border-neutral-200 dark:border-neutral-700 cursor-pointer transition-colors ${
+                            selectedChat?._id === chat._id && selectedType === 'direct'
+                              ? "bg-primary-50 dark:bg-primary-900/20"
+                              : "hover:bg-neutral-50 dark:hover:bg-neutral-700/50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold">
+                              {chat.user?.name?.charAt(0).toUpperCase() || "?"}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm truncate">{chat.user?.name}</p>
+                              <p className="text-xs text-neutral-500 truncate">
+                                {chat.lastMessage?.content || "No messages yet"}
+                              </p>
+                            </div>
+                            {chat.unreadCount > 0 && (
+                              <span className="bg-primary-500 text-white text-xs rounded-full px-2 py-0.5">
+                                {chat.unreadCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Empty State */}
+                  {!loading && chatGroups.length === 0 && directChats.length === 0 && !showSearchResults && (
+                    <div className="p-4 text-center">
+                      <p className="text-neutral-600 dark:text-neutral-400 text-sm">
+                        No conversations yet
+                      </p>
+                      <p className="text-neutral-500 text-xs mt-1">
+                        Search for users to start chatting
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </Card>
         </div>
 
-        {/* Chat Window */}
-        <div className="chat-window">
+        {/* Chat Area */}
+        <div className="flex-1">
           {selectedChat ? (
-            <>
-              <div className="chat-window-header">
-                <div className="chat-user-info">
-                  <div className="chat-avatar">
-                    {selectedChat.type === "group" ? <FaUsers /> : <FaUser />}
+            <Card className="h-full flex flex-col">
+              {/* Chat Header */}
+              <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
+                    selectedType === 'group' 
+                      ? 'bg-gradient-to-br from-accent-400 to-accent-600' 
+                      : 'bg-gradient-to-br from-primary-400 to-primary-600'
+                  }`}>
+                    {selectedType === 'group' ? <FaUsers /> : (selectedChat.user?.name?.[0] || selectedChat.name?.[0] || '?')}
                   </div>
                   <div>
-                    <h4>{selectedChat.name || selectedChat.user?.name}</h4>
-                    {selectedChat.type === "group" && (
-                      <p>{selectedChat.members?.length || 0} members</p>
-                    )}
+                    <p className="font-semibold text-neutral-900 dark:text-neutral-100">
+                      {selectedType === 'group' ? selectedChat.name : selectedChat.user?.name}
+                    </p>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                      {selectedType === 'group' 
+                        ? `${selectedChat.members?.length || 0} members` 
+                        : (typingUsers[selectedChat?._id] ? 'typing...' : 'Online')}
+                    </p>
                   </div>
+                </div>
+                <div className="flex gap-2">
+                  <button className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
+                    <FaPhone className="text-neutral-600 dark:text-neutral-400" />
+                  </button>
+                  <button className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
+                    <FaVideo className="text-neutral-600 dark:text-neutral-400" />
+                  </button>
+                  <button className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
+                    <FaInfoCircle className="text-neutral-600 dark:text-neutral-400" />
+                  </button>
                 </div>
               </div>
 
-              <div className="messages-container">
-                {messages.map((msg, index) => (
-                  <div
-                    key={msg._id || index}
-                    className={`message ${msg.sender._id === user?._id ? "sent" : "received"}`}
-                  >
-                    <div className="message-content">
-                      {selectedChat.type === "group" && msg.sender._id !== user?._id && (
-                        <span className="sender-name">{msg.sender.name}</span>
-                      )}
-                      <p>{msg.content}</p>
-                      <span className="message-time">
-                        {new Date(msg.createdAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-neutral-600 dark:text-neutral-400">
+                      No messages yet. Start the conversation!
+                    </p>
                   </div>
-                ))}
-                {typingUsers.length > 0 && (
-                  <div className="typing-indicator">
-                    {typingUsers.map((u) => u.userName).join(", ")} typing...
+                ) : (
+                  messages.map((msg) => {
+                    const isOwn = msg.sender?._id === user?._id || msg.sender === user?._id;
+                    return (
+                      <div
+                        key={msg._id || `${msg.sender?._id || msg.sender}-${msg.createdAt}`}
+                        className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-xs px-4 py-2 rounded-lg ${
+                            isOwn
+                              ? "bg-primary-500 text-white"
+                              : "bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100"
+                          }`}
+                        >
+                          {/* Show sender name for group messages from others */}
+                          {selectedType === 'group' && !isOwn && msg.sender?.name && (
+                            <p className="text-xs font-semibold mb-1 opacity-75">{msg.sender.name}</p>
+                          )}
+                          <p className="text-sm">{msg.content}</p>
+                          <p className={`text-xs mt-1 ${isOwn ? 'text-primary-200' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                            {formatTime(msg.createdAt || msg.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                {typingUsers[selectedChat?._id] && (
+                  <div className="flex justify-start">
+                    <div className="bg-neutral-200 dark:bg-neutral-700 px-4 py-2 rounded-lg">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-neutral-600 animate-bounce"></div>
+                        <div className="w-2 h-2 rounded-full bg-neutral-600 animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                        <div className="w-2 h-2 rounded-full bg-neutral-600 animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                      </div>
+                    </div>
                   </div>
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
-              <form className="message-input" onSubmit={handleSendMessage}>
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  value={newMessage}
-                  onChange={(e) => {
-                    setNewMessage(e.target.value);
-                    handleTyping();
-                  }}
-                />
-                <button type="submit" disabled={!newMessage.trim()}>
-                  <FaPaperPlane />
-                </button>
-              </form>
-            </>
+              {/* Message Input */}
+              <div className="p-4 border-t border-neutral-200 dark:border-neutral-700">
+                <form onSubmit={handleSendMessage} className="flex gap-3">
+                  <input
+                    type="text"
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    placeholder={isConnected ? "Type your message..." : "Connecting..."}
+                    disabled={!isConnected}
+                    className="flex-1 px-4 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!isConnected}
+                    className="px-4 py-2 bg-primary-500 hover:bg-primary-600 disabled:bg-neutral-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+                  >
+                    <FaPaperPlane /> Send
+                  </button>
+                </form>
+              </div>
+            </Card>
           ) : (
-            <div className="no-chat-selected">
-              <h3>Select a chat to start messaging</h3>
-              <p>Search for users or select from your existing conversations</p>
-            </div>
+            <Card className="h-full flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-4xl mb-4">💬</div>
+                <p className="text-neutral-600 dark:text-neutral-400">
+                  Select a conversation to start messaging
+                </p>
+              </div>
+            </Card>
           )}
         </div>
-      </div>
-    </div>
+      </Container>
+    </main>
   );
 };
 

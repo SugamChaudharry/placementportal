@@ -18,7 +18,7 @@ const applicationSchema = new mongoose.Schema({
     required: [true, "Please provide a cover letter!"],
   },
   phone: {
-    type: Number,
+    type: String,
     required: [true, "Please enter your Phone Number!"],
   },
   address: {
@@ -58,6 +58,11 @@ const applicationSchema = new mongoose.Schema({
       enum: ["Employer"],
       required: true,
     },
+  },
+  jobId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Job",
+    required: true,
   },
 });
 

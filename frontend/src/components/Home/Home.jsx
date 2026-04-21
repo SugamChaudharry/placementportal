@@ -13,14 +13,12 @@ const Home = () => {
     return <Navigate to={"/login"} />;
   }
   return (
-    <>
-      <section className="homePage page">
-        <HeroSection />
-        <HowItWorks />
-        <PopularCategories />
-        <PopularCompanies />
-      </section>
-    </>
+    <main className="min-h-screen bg-white dark:bg-neutral-900">
+      <HeroSection />
+      <HowItWorks />
+      <PopularCategories />
+      <PopularCompanies />
+    </main>
   );
 };
 

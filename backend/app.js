@@ -5,6 +5,7 @@ import userRouter from "./routes/userRoutes.js";
 import applicationRouter from "./routes/applicationRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
 import chatGroupRouter from "./routes/chatGroupRoutes.js";
+import notificationRouter from "./routes/notificationRoutes.js";
 import { config } from "dotenv";
 import cors from "cors";
 import { errorMiddleware } from "./middlewares/error.js";
@@ -37,6 +38,7 @@ app.use("/api/v1/job", jobRouter);
 app.use("/api/v1/application", applicationRouter);
 app.use("/api/v1/message", messageRouter);
 app.use("/api/v1/chat", chatGroupRouter);
+app.use("/api/v1/notifications", notificationRouter);
 dbConnection();
 
 app.use(errorMiddleware);

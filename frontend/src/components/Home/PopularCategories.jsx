@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   MdOutlineDesignServices,
   MdOutlineWebhook,
@@ -9,75 +10,100 @@ import { TbAppsFilled } from "react-icons/tb";
 import { FaReact } from "react-icons/fa";
 import { GiArtificialIntelligence } from "react-icons/gi";
 import { IoGameController } from "react-icons/io5";
+import { Card, SectionHeader, Badge } from "../UI";
+import { Section, Container } from "../UI/Layout";
 
 const PopularCategories = () => {
+  const navigate = useNavigate();
+
   const categories = [
     {
       id: 1,
       title: "Graphics & Design",
-      subTitle: "305 Open Positions",
+      count: 305,
       icon: <MdOutlineDesignServices />,
     },
     {
       id: 2,
       title: "Mobile App Development",
-      subTitle: "500 Open Positions",
+      count: 500,
       icon: <TbAppsFilled />,
     },
     {
       id: 3,
       title: "Frontend Web Development",
-      subTitle: "200 Open Positions",
+      count: 200,
       icon: <MdOutlineWebhook />,
     },
     {
       id: 4,
-      title: "MERN STACK Development",
-      subTitle: "1000+ Open Postions",
+      title: "MERN Stack Development",
+      count: 1000,
       icon: <FaReact />,
     },
     {
       id: 5,
       title: "Account & Finance",
-      subTitle: "150 Open Positions",
+      count: 150,
       icon: <MdAccountBalance />,
     },
     {
       id: 6,
       title: "Artificial Intelligence",
-      subTitle: "867 Open Positions",
+      count: 867,
       icon: <GiArtificialIntelligence />,
     },
     {
       id: 7,
       title: "Video Animation",
-      subTitle: "50 Open Positions",
+      count: 50,
       icon: <MdOutlineAnimation />,
     },
     {
       id: 8,
       title: "Game Development",
-      subTitle: "80 Open Positions",
+      count: 80,
       icon: <IoGameController />,
     },
   ];
+
   return (
-    <div className="categories">
-      <h3>POPULAR CATEGORIES</h3>
-      <div className="banner">
-        {categories.map((element) => {
-          return (
-            <div className="card" key={element.id}>
-              <div className="icon">{element.icon}</div>
-              <div className="text">
-                <p>{element.title}</p>
-                <p>{element.subTitle}</p>
+    <Section>
+      <Container>
+        <SectionHeader
+          title="Popular Job Categories"
+          subtitle="Explore thousands of opportunities across diverse industries"
+          centered
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {categories.map((category) => (
+            <Card
+              key={category.id}
+              className="cursor-pointer hover:shadow-lg group transition-all duration-300"
+              onClick={() => navigate("/job/getall")}
+            >
+              <div className="p-6 flex flex-col items-center text-center">
+                {/* Icon */}
+                <div className="text-5xl text-primary-600 dark:text-primary-400 mb-4 group-hover:scale-110 transition-transform">
+                  {category.icon}
+                </div>
+
+                {/* Title */}
+                <h4 className="text-lg font-semibold text-neutral-900 dark:text-white mb-2">
+                  {category.title}
+                </h4>
+
+                {/* Count Badge */}
+                <Badge variant="primary" size="md">
+                  {category.count}+ Open Positions
+                </Badge>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+            </Card>
+          ))}
+        </div>
+      </Container>
+    </Section>
   );
 };
 

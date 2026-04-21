@@ -138,3 +138,56 @@ export const getPublicProfile = catchAsyncErrors(async (req, res, next) => {
     user,
   });
 });
+
+// Get user's bookmarked jobs
+export const getBookmarks = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user._id).populate("bookmarks");
+
+  res.status(200).json({
+    success: true,
+    bookmarkedJobs: user.bookmarks || [],
+  });
+});
+
+// Add job to bookmarks
+export const addBookmark = catchAsyncErrors(async (req, res, next) => {
+  const { jobId } = req.params;
+  const userId = req.user._id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  // Check if already bookmarked
+  if (user.bookmarks.includes(jobId)) {
+    return next(new ErrorHandler("Job already bookmarked", 400));
+  }
+
+  user.bookmarks.push(jobId);
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Job bookmarked successfully",
+  });
+});
+
+// Remove job from bookmarks
+export const removeBookmark = catchAsyncErrors(async (req, res, next) => {
+  const { jobId } = req.params;
+  const userId = req.user._id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  user.bookmarks = user.bookmarks.filter((id) => id.toString() !== jobId);
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Bookmark removed successfully",
+  });
+});

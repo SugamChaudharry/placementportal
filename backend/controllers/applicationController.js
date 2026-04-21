@@ -79,6 +79,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
       address,
       applicantID,
       employerID,
+      jobId,
       resume: {
         public_id: cloudinaryResponse.public_id,
         url: cloudinaryResponse.secure_url,
@@ -151,7 +152,10 @@ export const employerGetAllApplications = catchAsyncErrors(
       );
     }
     const { _id } = req.user;
-    const applications = await Application.find({ "employerID.user": _id });
+    const applications = await Application.find({ "employerID.user": _id })
+      .populate("jobId", "title companyName")
+      .populate("applicantID.user", "name email phone")
+      .populate("employerID.user", "name companyName");
     res.status(200).json({
       success: true,
       applications,
@@ -168,7 +172,9 @@ export const jobseekerGetAllApplications = catchAsyncErrors(
       );
     }
     const { _id } = req.user;
-    const applications = await Application.find({ "applicantID.user": _id });
+    const applications = await Application.find({ "applicantID.user": _id })
+      .populate("jobId", "title companyName")
+      .populate("employerID.user", "name email companyName");
     res.status(200).json({
       success: true,
       applications,

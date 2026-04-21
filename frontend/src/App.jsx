@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from "react";
-import "./App.css";
 import { Context } from "./main";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./components/Auth/Login";
@@ -14,10 +13,12 @@ import JobDetails from "./components/Job/JobDetails";
 import Application from "./components/Application/Application";
 import MyApplications from "./components/Application/MyApplications";
 import PostJob from "./components/Job/PostJob";
+import ApplyJob from "./components/Job/ApplyJob";
 import Profile from "./components/Auth/Profile";
 import PublicProfile from "./components/Auth/PublicProfile";
 import JobSeekers from "./components/User/JobSeekers";
 import MyJobs from "./components/Job/MyJobs";
+import SavedJobs from "./components/Job/SavedJobs";
 import Chat from "./components/Chat/Chat";
 import NotFound from "./components/NotFound/NotFound";
 
@@ -51,10 +52,12 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/job/getall" element={<Jobs />} />
           <Route path="/job/:id" element={<JobDetails />} />
+          <Route path="/job/:id/apply" element={<ApplyJob />} />
           <Route path="/application/:id" element={<Application />} />
           <Route path="/applications/me" element={<MyApplications />} />
           <Route path="/job/post" element={<PostJob />} />
           <Route path="/job/me" element={<MyJobs />} />
+          <Route path="/saved-jobs" element={<SavedJobs />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/user/profile/:pid" element={<PublicProfile />} />
           <Route path="/jobseekers" element={<JobSeekers />} />

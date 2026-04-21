@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, "Please provide a valid Email!"],
   },
   phone: {
-    type: Number,
+    type: String,
     required: [true, "Please enter your Phone Number!"],
   },
   password: {
@@ -30,10 +30,19 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please select a role"],
     enum: ["Job Seeker", "Employer"],
   },
+  companyName: {
+    type: String,
+    minLength: [2, "Company name must contain at least 2 Characters!"],
+    maxLength: [50, "Company name cannot exceed 50 Characters!"],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  bookmarks: [{
+    type: mongoose.Schema.ObjectId,
+    ref: "Job",
+  }],
 });
 
 

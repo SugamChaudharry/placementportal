@@ -22,7 +22,11 @@ export const SocketProvider = ({ children }) => {
 
       const token = getCookie("token");
 
-      const newSocket = io(import.meta.env.VITE_API_URL || "http://localhost:4000", {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
+      // Socket.io needs the base URL without /api/v1 path
+      const socketUrl = apiUrl.replace(/\/api\/v1$/, "");
+
+      const newSocket = io(socketUrl, {
         withCredentials: true,
         auth: { token },
         transports: ["websocket", "polling"],
