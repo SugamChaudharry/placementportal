@@ -65,8 +65,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
       !phone ||
       !address ||
       !applicantID ||
-      !employerID ||
-      !resume
+      !employerID
     ) {
       return next(new ErrorHandler("Please fill all fields.", 400));
     }

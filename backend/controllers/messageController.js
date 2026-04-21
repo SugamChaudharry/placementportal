@@ -34,10 +34,12 @@ export const sendDirectMessage = catchAsyncErrors(async (req, res, next) => {
 
   // Emit to recipient via socket
   const io = getIO();
-  io.to(`user_${recipientId}`).emit("receive_message", {
-    type: "direct",
-    message: populatedMessage,
-  });
+  if (io) {
+    io.to(`user_${recipientId}`).emit("receive_message", {
+      type: "direct",
+      message: populatedMessage,
+    });
+  }
 
   res.status(201).json({
     success: true,
@@ -88,11 +90,13 @@ export const sendGroupMessage = catchAsyncErrors(async (req, res, next) => {
 
   // Emit to all group members via socket
   const io = getIO();
-  io.to(`group_${chatGroupId}`).emit("receive_message", {
-    type: "group",
-    groupId: chatGroupId,
-    message: populatedMessage,
-  });
+  if (io) {
+    io.to(`group_${chatGroupId}`).emit("receive_message", {
+      type: "group",
+      groupId: chatGroupId,
+      message: populatedMessage,
+    });
+  }
 
   res.status(201).json({
     success: true,
