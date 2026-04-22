@@ -67,6 +67,9 @@ export const getUser = catchAsyncErrors((req, res, next) => {
     email: user.email,
     phone: user.phone,
     role: user.role,
+    provider: user.provider,
+    avatar: user.avatar,
+    isProfileComplete: user.isProfileComplete,
   };
 
   res.status(200).json({
@@ -189,5 +192,56 @@ export const removeBookmark = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Bookmark removed successfully",
+  });
+});
+
+// Complete OAuth profile (add phone for OAuth users)
+export const completeOAuthProfile = catchAsyncErrors(async (req, res, next) => {
+  const { phone, role } = req.body;
+  const userId = req.user._id;
+
+  if (!phone) {
+    return next(new ErrorHandler("Please provide phone number", 400));
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  // Only allow for OAuth users
+  if (user.provider === "local") {
+    return next(new ErrorHandler("Not applicable for local accounts", 400));
+  }
+
+  // Update phone
+  user.phone = phone;
+  
+  // Update role if provided (default was "Job Seeker")
+  if (role && ["Job Seeker", "Employer"].includes(role)) {
+    user.role = role;
+  }
+
+  // Mark profile as complete
+  user.isProfileComplete = true;
+
+  await user.save();
+
+  // Return updated user without sensitive fields
+  const sanitizedUser = {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    provider: user.provider,
+    avatar: user.avatar,
+    isProfileComplete: user.isProfileComplete,
+  };
+
+  res.status(200).json({
+    success: true,
+    message: "Profile completed successfully",
+    user: sanitizedUser,
   });
 });

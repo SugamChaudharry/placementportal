@@ -1,8 +1,9 @@
 import React, { useContext, useState } from "react";
-import { FaRegUser, FaPencilAlt } from "react-icons/fa";
+import { FaRegUser, FaPencilAlt, FaGithub } from "react-icons/fa";
 import { FaPhoneFlip } from "react-icons/fa6";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { FcGoogle } from "react-icons/fc";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -159,6 +160,40 @@ const Register = () => {
               {loading && <Spinner size="sm" className="mr-2" />}
               {loading ? "Creating account..." : "Create Account"}
             </Button>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-neutral-300 dark:border-neutral-600" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                  Or sign up with
+                </span>
+              </div>
+            </div>
+
+            {/* OAuth Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <a
+                href={`${import.meta.env.VITE_API_URL.replace('/api/v1', '')}/api/v1/auth/google`}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
+              >
+                <FcGoogle className="w-5 h-5" />
+                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  Google
+                </span>
+              </a>
+              <a
+                href={`${import.meta.env.VITE_API_URL.replace('/api/v1', '')}/api/v1/auth/github`}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-neutral-300 dark:border-neutral-600 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
+              >
+                <FaGithub className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
+                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  GitHub
+                </span>
+              </a>
+            </div>
 
             {/* Divider */}
             <div className="relative">
