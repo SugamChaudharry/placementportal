@@ -1,5 +1,6 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncError.js";
 import { User } from "../models/userSchema.js";
+import { Job } from "../models/jobSchema.js";
 import ErrorHandler from "../middlewares/error.js";
 import { sendToken } from "../utils/jwtToken.js";
 
@@ -30,6 +31,10 @@ export const login = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
     return next(new ErrorHandler("Invalid Email Or Password.", 400));
+  }
+  // Prevent OAuth users from logging in via local login
+  if (user.provider !== "local") {
+    return next(new ErrorHandler(`Please login with ${user.provider}`, 400));
   }
   const isPasswordMatched = await user.comparePassword(password);
   if (!isPasswordMatched) {
@@ -160,6 +165,12 @@ export const addBookmark = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findById(userId);
   if (!user) {
     return next(new ErrorHandler("User not found", 404));
+  }
+
+  // Verify the job exists
+  const job = await Job.findById(jobId);
+  if (!job) {
+    return next(new ErrorHandler("Job not found", 404));
   }
 
   // Check if already bookmarked

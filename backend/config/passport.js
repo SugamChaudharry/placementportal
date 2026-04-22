@@ -16,7 +16,10 @@ export const initializePassport = () => {
       async (accessToken, refreshToken, profile, done) => {
         try {
           const email = profile.emails?.[0]?.value;
-          const name = profile.displayName || profile.name?.givenName + " " + profile.name?.familyName;
+          const givenName = profile.name?.givenName || "";
+          const familyName = profile.name?.familyName || "";
+          const nameFromParts = `${givenName} ${familyName}`.trim();
+          const name = profile.displayName || nameFromParts || "Google User";
           const avatar = profile.photos?.[0]?.value;
           const providerId = profile.id;
 
@@ -24,20 +27,20 @@ export const initializePassport = () => {
             return done(new Error("Email not provided by Google"), null);
           }
 
-          // Check if user exists by providerId or email
+          // Check if user exists by providerId first
           let user = await User.findOne({
-            $or: [{ providerId: providerId, provider: "google" }, { email: email }],
+            providerId: providerId,
+            provider: "google",
           });
 
           if (user) {
-            // If user exists but was created with local auth, link the accounts
-            if (user.provider === "local") {
-              user.provider = "google";
-              user.providerId = providerId;
-              if (avatar) user.avatar = avatar;
-              await user.save();
-            }
             return done(null, user);
+          }
+
+          // Check if email already exists with local account
+          const existingLocalUser = await User.findOne({ email: email, provider: "local" });
+          if (existingLocalUser) {
+            return done(new Error("An account with this email already exists. Please login and connect your Google account from profile settings."), null);
           }
 
           // Create new user from OAuth data
@@ -73,7 +76,7 @@ export const initializePassport = () => {
       async (accessToken, refreshToken, profile, done) => {
         try {
           const email = profile.emails?.[0]?.value || profile._json?.email;
-          const name = profile.displayName || profile.username || "GitHub User";
+          const name = profile.displayName || (profile.username ? `@${profile.username}` : null) || "GitHub User";
           const avatar = profile.photos?.[0]?.value || profile._json?.avatar_url;
           const providerId = profile.id;
 
@@ -81,20 +84,20 @@ export const initializePassport = () => {
             return done(new Error("Email not provided by GitHub"), null);
           }
 
-          // Check if user exists by providerId or email
+          // Check if user exists by providerId first
           let user = await User.findOne({
-            $or: [{ providerId: providerId, provider: "github" }, { email: email }],
+            providerId: providerId,
+            provider: "github",
           });
 
           if (user) {
-            // If user exists but was created with local auth, link the accounts
-            if (user.provider === "local") {
-              user.provider = "github";
-              user.providerId = providerId;
-              if (avatar) user.avatar = avatar;
-              await user.save();
-            }
             return done(null, user);
+          }
+
+          // Check if email already exists with local account
+          const existingLocalUser = await User.findOne({ email: email, provider: "local" });
+          if (existingLocalUser) {
+            return done(new Error("An account with this email already exists. Please login and connect your GitHub account from profile settings."), null);
           }
 
           // Create new user from OAuth data

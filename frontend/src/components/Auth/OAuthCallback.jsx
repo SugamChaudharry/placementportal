@@ -14,40 +14,41 @@ const OAuthCallback = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const handleOAuthCallback = async () => {
       const success = searchParams.get("success");
       const needsCompletion = searchParams.get("needsCompletion") === "true";
-      const token = searchParams.get("token");
       const errorParam = searchParams.get("error");
 
       if (errorParam) {
-        setError("Authentication failed. Please try again.");
-        toast.error("OAuth authentication failed");
-        setTimeout(() => navigate("/login"), 3000);
+        if (isMounted) {
+          setError("Authentication failed. Please try again.");
+          toast.error("OAuth authentication failed");
+          setTimeout(() => navigate("/login"), 3000);
+        }
         return;
       }
 
-      if (!success || !token) {
-        setError("Invalid callback response");
-        toast.error("Authentication error");
-        setTimeout(() => navigate("/login"), 3000);
+      if (!success) {
+        if (isMounted) {
+          setError("Invalid callback response");
+          toast.error("Authentication error");
+          setTimeout(() => navigate("/login"), 3000);
+        }
         return;
       }
 
       try {
-        // The token is already set in cookie by backend, but we need to fetch user data
-        // Use the token from query param for the Authorization header
+        // Token is set in httpOnly cookie by backend, browser sends it automatically
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/user/getuser`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
             withCredentials: true,
           }
         );
 
-        if (response.data.success) {
+        if (response.data.success && isMounted) {
           setUser(response.data.user);
           setIsAuthorized(true);
           toast.success("Successfully logged in!");
@@ -59,20 +60,28 @@ const OAuthCallback = () => {
             // Redirect to home
             navigate("/");
           }
-        } else {
+        } else if (!response.data.success) {
           throw new Error("Failed to get user data");
         }
       } catch (err) {
         console.error("OAuth callback error:", err);
-        setError(err.response?.data?.message || "Failed to complete authentication");
-        toast.error("Authentication failed");
-        setTimeout(() => navigate("/login"), 3000);
+        if (isMounted) {
+          setError(err.response?.data?.message || "Failed to complete authentication");
+          toast.error("Authentication failed");
+          setTimeout(() => navigate("/login"), 3000);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     handleOAuthCallback();
+
+    return () => {
+      isMounted = false;
+    };
   }, [searchParams, navigate, setIsAuthorized, setUser]);
 
   if (loading) {

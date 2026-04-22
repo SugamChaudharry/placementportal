@@ -25,11 +25,14 @@ router.get(
     const token = user.getJWTToken();
 
     // Set cookie
+    const cookieExpireDays = parseInt(process.env.COOKIE_EXPIRE, 10) || 7;
     const options = {
       expires: new Date(
-        Date.now() + (process.env.COOKIE_EXPIRE || 7) * 24 * 60 * 60 * 1000
+        Date.now() + cookieExpireDays * 24 * 60 * 60 * 1000
       ),
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
     };
 
@@ -41,7 +44,7 @@ router.get(
     res
       .cookie("token", token, options)
       .redirect(
-        `${frontendUrl}/oauth/callback?success=true&needsCompletion=${needsCompletion}&token=${token}`
+        `${frontendUrl}/oauth/callback?success=true&needsCompletion=${needsCompletion}`
       );
   }
 );
@@ -66,11 +69,14 @@ router.get(
     const token = user.getJWTToken();
 
     // Set cookie
+    const cookieExpireDays = parseInt(process.env.COOKIE_EXPIRE, 10) || 7;
     const options = {
       expires: new Date(
-        Date.now() + (process.env.COOKIE_EXPIRE || 7) * 24 * 60 * 60 * 1000
+        Date.now() + cookieExpireDays * 24 * 60 * 60 * 1000
       ),
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
     };
 
@@ -81,7 +87,7 @@ router.get(
     res
       .cookie("token", token, options)
       .redirect(
-        `${frontendUrl}/oauth/callback?success=true&needsCompletion=${needsCompletion}&token=${token}`
+        `${frontendUrl}/oauth/callback?success=true&needsCompletion=${needsCompletion}`
       );
   }
 );
