@@ -32,9 +32,9 @@ const ApplyJob = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp", "application/pdf"];
       if (!allowedTypes.includes(file.type)) {
-        toast.error("Please upload PNG, JPEG, or WEBP file");
+        toast.error("Please upload PNG, JPEG, WEBP, or PDF file");
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
@@ -113,12 +113,12 @@ const ApplyJob = () => {
               <div>
                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                   Resume / CV <span className="text-red-500">*</span>
-                  <span className="text-neutral-500 text-xs ml-2">(PNG, JPEG, or WEBP)</span>
+                  <span className="text-neutral-500 text-xs ml-2">(PNG, JPEG, WEBP, or PDF)</span>
                 </label>
                 <div className="border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-lg p-6 text-center hover:border-primary-500 transition-colors">
                   <input
                     type="file"
-                    accept=".png,.jpg,.jpeg,.webp"
+                    accept=".png,.jpg,.jpeg,.webp,.pdf"
                     onChange={handleFileChange}
                     className="hidden"
                     id="resume-upload"
