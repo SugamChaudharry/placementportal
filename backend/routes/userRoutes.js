@@ -1,11 +1,12 @@
 import express from "express";
 import { login, register, logout, getUser, getAllJobSeekers, updateProfile, getPublicProfile, getBookmarks, addBookmark, removeBookmark, completeOAuthProfile } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
+import { authLimiter } from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/login", login);
+router.post("/register", authLimiter, register);
+router.post("/login", authLimiter, login);
 router.get("/logout", logout);
 router.get("/getuser", isAuthenticated, getUser);
 router.get("/jobseekers", isAuthenticated, getAllJobSeekers);

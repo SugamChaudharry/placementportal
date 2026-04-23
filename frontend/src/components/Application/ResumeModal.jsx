@@ -2,10 +2,15 @@ import React from "react";
 import { FaTimes, FaDownload } from "react-icons/fa";
 
 const ResumeModal = ({ imageUrl, onClose }) => {
+  const isPDF = imageUrl?.toLowerCase().endsWith(".pdf") || imageUrl?.includes("/pdf") || imageUrl?.includes("application/pdf");
+
   const handleDownload = () => {
     const link = document.createElement("a");
-    link.href = imageUrl;
-    link.download = "resume";
+    link.href = isPDF
+      ? imageUrl.replace("/image/upload/", "/raw/upload/")
+      : imageUrl;
+    link.download = isPDF ? "resume.pdf" : "resume";
+    link.target = "_blank";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -40,11 +45,20 @@ const ResumeModal = ({ imageUrl, onClose }) => {
 
         {/* Content */}
         <div className="p-4 overflow-auto max-h-[calc(90vh-80px)] bg-neutral-100 dark:bg-neutral-800">
-          <img
-            src={imageUrl}
-            alt="Resume"
-            className="w-full h-auto max-w-full rounded-lg shadow-lg"
-          />
+          {isPDF ? (
+            <iframe
+              src={imageUrl}
+              title="Resume PDF"
+              className="w-full rounded-lg shadow-lg"
+              style={{ height: "calc(90vh - 140px)", minHeight: "500px" }}
+            />
+          ) : (
+            <img
+              src={imageUrl}
+              alt="Resume"
+              className="w-full h-auto max-w-full rounded-lg shadow-lg"
+            />
+          )}
         </div>
       </div>
     </div>

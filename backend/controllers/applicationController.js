@@ -4,6 +4,41 @@ import { Application } from "../models/applicationSchema.js";
 import { Job } from "../models/jobSchema.js";
 import { ChatGroup } from "../models/chatGroupSchema.js";
 import cloudinary from "cloudinary";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Resolve tmp folder relative to project root (one level up from controllers/)
+const TMP_DIR = path.resolve(__dirname, "../tmp");
+
+// Helper: remove a specific temp file by its path
+const removeTempFile = (filePath) => {
+  if (!filePath) return;
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (err) {
+    console.error(`Failed to delete temp file ${filePath}:`, err.message);
+  }
+};
+
+// Helper: remove all files from the tmp directory (preserves .gitkeep)
+const cleanTmpFolder = () => {
+  if (!fs.existsSync(TMP_DIR)) return;
+  const files = fs.readdirSync(TMP_DIR);
+  for (const file of files) {
+    if (file === ".gitkeep") continue;
+    const filePath = path.join(TMP_DIR, file);
+    try {
+      fs.unlinkSync(filePath);
+    } catch (err) {
+      console.error(`Failed to delete temp file ${filePath}:`, err.message);
+    }
+  }
+};
 
 export const postApplication = catchAsyncErrors(async (req, res, next) => {
   const { role } = req.user;
@@ -12,22 +47,23 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
       new ErrorHandler("Employer not allowed to access this resource.", 400)
     );
   }
-  
+
   if (!req.files || Object.keys(req.files).length === 0) {
     return next(new ErrorHandler("Resume File Required!", 400));
   }
 
   const { resume } = req.files;
-  const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
+  const allowedFormats = ["image/png", "image/jpeg", "image/webp", "application/pdf"];
   if (!allowedFormats.includes(resume.mimetype)) {
     return next(
-      new ErrorHandler("Invalid file type. Please upload a PNG, JPEG, or WEBP file.", 400)
+      new ErrorHandler("Invalid file type. Please upload a PNG, JPEG, WEBP, or PDF file.", 400)
     );
   }
-  
+
   try {
     const cloudinaryResponse = await cloudinary.uploader.upload(
-      resume.tempFilePath
+      resume.tempFilePath,
+      { resource_type: "auto", type: "upload", access_mode: "public" }
     );
 
     if (!cloudinaryResponse || cloudinaryResponse.error) {
@@ -35,19 +71,23 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
         "Cloudinary Error:",
         cloudinaryResponse.error || "Unknown Cloudinary error"
       );
+      removeTempFile(resume.tempFilePath);
       return next(new ErrorHandler("Failed to upload Resume to Cloudinary", 500));
     }
-    
+
+    // Remove the specific temp file immediately after successful upload
+    removeTempFile(resume.tempFilePath);
+
     const { name, email, coverLetter, phone, address, jobId } = req.body;
     const applicantID = {
       user: req.user._id,
       role: "Job Seeker",
     };
-    
+
     if (!jobId) {
       return next(new ErrorHandler("Job not found!", 404));
     }
-    
+
     const jobDetails = await Job.findById(jobId);
     if (!jobDetails) {
       return next(new ErrorHandler("Job not found!", 404));
@@ -57,7 +97,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
       user: jobDetails.postedBy,
       role: "Employer",
     };
-    
+
     if (
       !name ||
       !email ||
@@ -69,7 +109,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
     ) {
       return next(new ErrorHandler("Please fill all fields.", 400));
     }
-    
+
     const application = await Application.create({
       name,
       email,
@@ -88,7 +128,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
     // Auto-join applicant to job chat group
     try {
       let chatGroup = await ChatGroup.findOne({ job: jobId, type: "job" });
-      
+
       if (!chatGroup) {
         // Create chat group if it doesn't exist
         chatGroup = await ChatGroup.create({
@@ -124,19 +164,26 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
       console.error("Failed to add applicant to chat group:", chatError);
       // Don't fail the application if chat join fails
     }
-    
+
+    // Clean any remaining temp files after successful upload
+    cleanTmpFolder();
+
     res.status(200).json({
       success: true,
       message: "Application Submitted!",
       application,
     });
   } catch (error) {
+    // Clean temp files even on error
+    removeTempFile(resume.tempFilePath);
+    cleanTmpFolder();
+
     // Handle Cloudinary specific errors
     if (error.message && error.message.includes("api_key")) {
       console.error("Cloudinary API key error:", error.message);
       return next(new ErrorHandler("File upload service configuration error", 500));
     }
-    
+
     // Handle any other errors
     return next(error);
   }
@@ -193,6 +240,10 @@ export const jobseekerDeleteApplication = catchAsyncErrors(
     const application = await Application.findById(id);
     if (!application) {
       return next(new ErrorHandler("Application not found!", 404));
+    }
+    // Ownership check: only the applicant can delete their own application
+    if (application.applicantID.user.toString() !== req.user._id.toString()) {
+      return next(new ErrorHandler("You are not authorized to delete this application.", 403));
     }
     await application.deleteOne();
     res.status(200).json({
