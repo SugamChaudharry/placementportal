@@ -37,6 +37,8 @@ router.get(
       path: "/",
     };
 
+    console.log("Google OAuth callback - setting cookie:", { isProduction, sameSite: options.sameSite, secure: options.secure, frontendUrl: process.env.FRONTEND_URL });
+
     // Redirect to frontend with token and user data as query params
     // Frontend will handle the token and check if profile completion is needed
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
