@@ -61,16 +61,9 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
   }
 
   try {
-    // Use 'raw' for PDFs to bypass image delivery restrictions
-    const isPDF = resume.mimetype === "application/pdf";
-    const cloudinaryResponse = await cloudinary.v2.uploader.upload(
+    const cloudinaryResponse = await cloudinary.uploader.upload(
       resume.tempFilePath,
-      { 
-        resource_type: isPDF ? "raw" : "auto", 
-        type: "upload", 
-        access_mode: "public",
-        format: isPDF ? undefined : undefined
-      }
+      { resource_type: "auto", type: "upload", access_mode: "public" }
     );
 
     if (!cloudinaryResponse || cloudinaryResponse.error) {
@@ -128,9 +121,7 @@ export const postApplication = catchAsyncErrors(async (req, res, next) => {
       jobId,
       resume: {
         public_id: cloudinaryResponse.public_id,
-        url: isPDF 
-          ? cloudinaryResponse.secure_url.replace("/image/upload/", "/raw/upload/")
-          : cloudinaryResponse.secure_url,
+        url: cloudinaryResponse.secure_url,
       },
     });
 
