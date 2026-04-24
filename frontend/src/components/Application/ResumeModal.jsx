@@ -50,7 +50,7 @@ const ResumeModal = ({ imageUrl, onClose }) => {
         <div className="p-4 overflow-auto max-h-[calc(90vh-80px)] bg-neutral-100 dark:bg-neutral-800">
           {isPDF ? (
             <iframe
-              src={imageUrl}
+              src={`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(imageUrl)}`}
               title="Resume PDF"
               className="w-full rounded-lg shadow-lg"
               style={{ height: "calc(90vh - 140px)", minHeight: "500px" }}
