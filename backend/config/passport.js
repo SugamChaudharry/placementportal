@@ -6,6 +6,7 @@ import { User } from "../models/userSchema.js";
 export const initializePassport = () => {
   // Google OAuth Strategy — only initialize if credentials are configured
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    console.log("Google OAuth: Initializing with callback URL:", `${process.env.BACKEND_URL || "http://localhost:4000"}/api/v1/auth/google/callback`);
     passport.use(
       new GoogleStrategy(
         {

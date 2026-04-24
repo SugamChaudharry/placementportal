@@ -15,7 +15,7 @@ import fileUpload from "express-fileupload";
 import { initializePassport } from "./config/passport.js";
 
 const app = express();
-config({ path: "./config/config.env" });
+config({ path: "./.env" });
 
 app.use(
   cors({
