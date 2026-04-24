@@ -4,10 +4,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const DB_URL = process.env.DB_URL || "mongodb://localhost:27017/Job_Portal";
 
@@ -66,9 +66,12 @@ async function importData() {
 }
 
 async function importFromDir(exportDir) {
-  console.log("Connecting to MongoDB...", DB_URL);
-  await mongoose.connect(DB_URL);
-  console.log("Connected successfully!\n");
+  const DB_URL_WITH_DB = DB_URL.includes("?") 
+    ? DB_URL.replace("?", "/Job_Portal?")
+    : DB_URL + "/Job_Portal";
+  console.log("Connecting to MongoDB...");
+  await mongoose.connect(DB_URL_WITH_DB);
+  console.log("Connected successfully to database: Job_Portal\n");
 
   let total = 0;
 
