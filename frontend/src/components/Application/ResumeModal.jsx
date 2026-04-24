@@ -2,7 +2,10 @@ import React from "react";
 import { FaTimes, FaDownload } from "react-icons/fa";
 
 const ResumeModal = ({ imageUrl, onClose }) => {
-  const isPDF = imageUrl?.toLowerCase().endsWith(".pdf") || imageUrl?.includes("/pdf") || imageUrl?.includes("application/pdf");
+  const isPDF = imageUrl?.toLowerCase().endsWith(".pdf") || 
+              imageUrl?.includes("/pdf") || 
+              imageUrl?.includes("application/pdf") ||
+              imageUrl?.includes("/raw/upload/");
 
   const handleDownload = () => {
     const link = document.createElement("a");
