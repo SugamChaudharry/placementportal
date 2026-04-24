@@ -28,7 +28,7 @@ const Navbar = () => {
   const fetchNotifications = async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:4000/api/v1/notifications",
+        `${import.meta.env.VITE_API_URL}/notifications`,
         { withCredentials: true }
       );
       setNotifications(data.notifications || []);
@@ -41,7 +41,7 @@ const Navbar = () => {
   const markAsRead = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:4000/api/v1/notifications/${id}/read`,
+        `${import.meta.env.VITE_API_URL}/notifications/${id}/read`,
         {},
         { withCredentials: true }
       );
@@ -55,7 +55,7 @@ const Navbar = () => {
   const clearAll = async () => {
     try {
       await axios.delete(
-        "http://localhost:4000/api/v1/notifications",
+        `${import.meta.env.VITE_API_URL}/notifications`,
         { withCredentials: true }
       );
       setNotifications([]);
@@ -69,7 +69,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/v1/user/logout",
+        `${import.meta.env.VITE_API_URL}/user/logout`,
         {
           withCredentials: true,
         }

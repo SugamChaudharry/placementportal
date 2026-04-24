@@ -19,8 +19,8 @@ const JobDetails = () => {
       try {
         setLoading(true);
         const [{ data: jobData }, { data: bookmarkData }] = await Promise.all([
-          axios.get(`http://localhost:4000/api/v1/job/${id}`, { withCredentials: true }),
-          axios.get("http://localhost:4000/api/v1/user/bookmarks", { withCredentials: true }).catch(() => ({ data: { bookmarkedJobs: [] } }))
+          axios.get(`${import.meta.env.VITE_API_URL}/job/${id}`, { withCredentials: true }),
+          axios.get(`${import.meta.env.VITE_API_URL}/user/bookmarks`, { withCredentials: true }).catch(() => ({ data: { bookmarkedJobs: [] } }))
         ]);
         setJob(jobData.job);
         const isBookmarked = (bookmarkData.bookmarkedJobs || []).some(job => job._id === id);
@@ -82,14 +82,14 @@ const JobDetails = () => {
     try {
       if (bookmarked) {
         await axios.delete(
-          `http://localhost:4000/api/v1/user/bookmarks/${id}`,
+          `${import.meta.env.VITE_API_URL}/user/bookmarks/${id}`,
           { withCredentials: true }
         );
         setBookmarked(false);
         toast.success("Removed from bookmarks");
       } else {
         await axios.post(
-          `http://localhost:4000/api/v1/user/bookmarks/${id}`,
+          `${import.meta.env.VITE_API_URL}/user/bookmarks/${id}`,
           {},
           { withCredentials: true }
         );

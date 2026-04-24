@@ -21,7 +21,7 @@ const Application = () => {
       try {
         setLoading(true);
         const { data } = await axios.get(
-          `http://localhost:4000/api/v1/application/${appid}`,
+          `${import.meta.env.VITE_API_URL}/application/${appid}`,
           { withCredentials: true }
         );
         setApplication(data.application);
@@ -79,7 +79,7 @@ const Application = () => {
     try {
       setUpdating(true);
       const { data } = await axios.put(
-        `http://localhost:4000/api/v1/application/update/${appid}`,
+        `${import.meta.env.VITE_API_URL}/application/update/${appid}`,
         { status: newStatus },
         { withCredentials: true }
       );

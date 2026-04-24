@@ -21,13 +21,13 @@ const MyApplications = () => {
         setLoading(true);
         if (user && user.role === "Employer") {
           const { data } = await axios.get(
-            "http://localhost:4000/api/v1/application/employer/getall",
+            `${import.meta.env.VITE_API_URL}/application/employer/getall`,
             { withCredentials: true }
           );
           setApplications(data.applications || []);
         } else {
           const { data } = await axios.get(
-            "http://localhost:4000/api/v1/application/jobseeker/getall",
+            `${import.meta.env.VITE_API_URL}/application/jobseeker/getall`,
             { withCredentials: true }
           );
           setApplications(data.applications || []);
@@ -51,7 +51,7 @@ const MyApplications = () => {
   const deleteApplication = (id) => {
     try {
       axios
-        .delete(`http://localhost:4000/api/v1/application/delete/${id}`, {
+        .delete(`${import.meta.env.VITE_API_URL}/application/delete/${id}`, {
           withCredentials: true,
         })
         .then((res) => {

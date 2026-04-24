@@ -19,7 +19,7 @@ const MyJobs = () => {
       try {
         setLoading(true);
         const { data } = await axios.get(
-          "http://localhost:4000/api/v1/job/getmyjobs",
+          `${import.meta.env.VITE_API_URL}/job/getmyjobs`,
           { withCredentials: true }
         );
         setMyJobs(data.myJobs || []);
@@ -57,7 +57,7 @@ const MyJobs = () => {
   const handleSaveJob = async () => {
     try {
       const { data } = await axios.put(
-        `http://localhost:4000/api/v1/job/update/${editingJobId}`,
+        `${import.meta.env.VITE_API_URL}/job/update/${editingJobId}`,
         editFormData,
         { withCredentials: true }
       );
@@ -79,7 +79,7 @@ const MyJobs = () => {
 
     try {
       const { data } = await axios.delete(
-        `http://localhost:4000/api/v1/job/delete/${jobId}`,
+        `${import.meta.env.VITE_API_URL}/job/delete/${jobId}`,
         { withCredentials: true }
       );
       toast.success(data.message);

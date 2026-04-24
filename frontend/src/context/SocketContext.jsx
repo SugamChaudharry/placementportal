@@ -22,7 +22,7 @@ export const SocketProvider = ({ children }) => {
 
       const token = getCookie("token");
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1";
       // Socket.io needs the base URL without /api/v1 path
       const socketUrl = apiUrl.replace(/\/api\/v1\/?$/, "").replace(/\/$/, "");
 
